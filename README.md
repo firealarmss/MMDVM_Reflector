@@ -6,9 +6,7 @@
 
 Debian Compliling:
 
-Follow the intructions on install dotnet on your current debian version:
-
-https://learn.microsoft.com/en-us/dotnet/core/install/linux-debian
+Follow the intructions to install dotnet on your current debian version here: https://learn.microsoft.com/en-us/dotnet/core/install/linux-debian
 
 1. Change into main directory `cd /`
 3. Clone the app `git clone https://github.com/firealarmss/MMDVM_Reflector.git`
