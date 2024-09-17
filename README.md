@@ -1,5 +1,7 @@
 # MMDVM Reflector: YSF, P25, and NXDN Reflector based on MMDVM written by Caleb KO4UYJ.
 
+[![License](https://img.shields.io/badge/License-GPLv3-blue?style=for-the-badge)](https://www.gnu.org/licenses/gpl-3.0)
+
 ## Install
 
 Debian Compliling:
