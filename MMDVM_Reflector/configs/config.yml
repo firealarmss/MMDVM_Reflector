@@ -1,0 +1,15 @@
+reflectors:
+  p25:
+    enabled: true
+    networkPort: 32010
+    networkDebug: false
+
+  nxdn: # NOT SUPPORTED YET!
+    enabled: false
+    networkPort: 32020
+    networkDebug: false
+
+  ysf:
+    enabled: true
+    networkPort: 32030
+    networkDebug: false
