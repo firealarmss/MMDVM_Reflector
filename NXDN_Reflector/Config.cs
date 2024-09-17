@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace NXDN_Reflector
+﻿namespace NXDN_Reflector
 {
     public class Config
     {
@@ -13,5 +7,6 @@ namespace NXDN_Reflector
         public bool Enabled { get; set; }
         public int NetworkPort { get; set; }
         public bool NetworkDebug { get; set; }
+        public ushort TargetGroup { get; set; }
     }
 }

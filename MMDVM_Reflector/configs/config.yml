@@ -4,10 +4,11 @@ reflectors:
     networkPort: 32010
     networkDebug: false
 
-  nxdn: # NOT SUPPORTED YET!
-    enabled: false
+  nxdn:
+    enabled: true
     networkPort: 32020
     networkDebug: false
+    targetGroup: 1
 
   ysf:
     enabled: true

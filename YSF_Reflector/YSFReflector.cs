@@ -24,7 +24,7 @@ namespace YSF_Reflector
 
         public void Run()
         {
-            Console.WriteLine("Starting NXDNReflector");
+            Console.WriteLine("Starting YSFReflector");
             Console.WriteLine($"    Port: {_config.NetworkPort}");
             Console.WriteLine($"    Debug: {_config.NetworkDebug}");
 

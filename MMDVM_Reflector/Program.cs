@@ -1,4 +1,5 @@
-﻿using P25_Reflector;
+﻿using NXDN_Reflector;
+using P25_Reflector;
 using YSF_Reflector;
 
 #nullable disable
@@ -11,7 +12,8 @@ namespace MMDVM_Reflector
         {
             P25Reflector p25Reflector = null;
             YSFReflector ysfReflector = null;
-            
+            NXDNReflector nxdnReflector = null;
+
             Console.WriteLine("MMDVM Reflector Suite");
 
             string configFilePath = "config.yml";
@@ -45,6 +47,12 @@ namespace MMDVM_Reflector
                     ysfReflector = new YSFReflector(config.Reflectors.Ysf);
                     ysfReflector.Run();
                 }
+
+                if (config.Reflectors.Nxdn.Enabled)
+                {
+                    nxdnReflector = new NXDNReflector(config.Reflectors.Nxdn);
+                    nxdnReflector.Run();
+                }
             }
 
             Console.ReadLine();
@@ -54,6 +62,9 @@ namespace MMDVM_Reflector
 
             if (config.Reflectors.Ysf.Enabled && ysfReflector != null)
                 ysfReflector.Stop();
+
+            if (config.Reflectors.Nxdn.Enabled && nxdnReflector != null)
+                nxdnReflector.Stop();
         }
     }
 }
