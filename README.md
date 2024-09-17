@@ -10,11 +10,12 @@ Follow the intructions on install dotnet on your current debian version:
 
 https://learn.microsoft.com/en-us/dotnet/core/install/linux-debian
 
-Change into main directory`cd /`
-Clone the app `git clone https://github.com/firealarmss/MMDVM_Reflector.git`
-Change directory into the app`cd MMDVM_Reflector`
-Compile the app `dotnet compile`
-Run the app: `./MMDVM_Reflector/MMDVM_Reflector/bin/Debug/net8.0 --config=/MMDVM_Reflector/MMDVM_Reflector/configs/config.yml`
+1. Change into main directory
+```cd /```
+2. Clone the app `git clone https://github.com/firealarmss/MMDVM_Reflector.git`
+3. Change directory into the app`cd MMDVM_Reflector`
+4. Compile the app `dotnet compile`
+5. Run the app: `./MMDVM_Reflector/MMDVM_Reflector/bin/Debug/net8.0 --config=/MMDVM_Reflector/MMDVM_Reflector/configs/config.yml`
 
 Enable/Disable modes and change ports under MMDVM_Reflector/configs/config.yml
 
