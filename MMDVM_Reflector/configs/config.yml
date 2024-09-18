@@ -1,16 +1,20 @@
 reflectors:
   p25:
-    enabled: true
-    networkPort: 32010
+    enabled: false
+    networkPort: 41000
     networkDebug: false
 
   nxdn:
-    enabled: true
-    networkPort: 32020
+    enabled: false
+    networkPort: 41400
     networkDebug: false
     targetGroup: 1
 
   ysf:
-    enabled: true
-    networkPort: 32030
+    enabled: false
+    networkPort: 42000
     networkDebug: false
+
+# Under the 'enabled:' section please replace false with true to enable the mode
+# Feel free to change the port if interested
+# MMDVM Gateways will not connect to this directly becuase they share the same port, so you might want to host your reflector on a different machine then your DVSwitc
