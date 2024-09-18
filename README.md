@@ -15,7 +15,7 @@ The script downloads dotnet for compiling, compiles the app, and creates a daemo
  - `chmod +x installer.sh`
  - `./installer.sh`
 
-Linux/Debian Manual Compliling:
+## Linux/Debian Manual Compliling:
 
 Follow the intructions to install dotnet on your current debian version here: https://learn.microsoft.com/en-us/dotnet/core/install/linux-debian
 
