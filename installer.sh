@@ -24,7 +24,7 @@ cd /
 git clone https://github.com/VALER24/MMDVM_Reflector
 
 # Change to the project directory
-cd /mmdvm_reflector
+cd /MMDVM_Reflector
 
 # Compile the .NET project
 dotnet build
