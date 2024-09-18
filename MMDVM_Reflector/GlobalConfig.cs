@@ -27,6 +27,7 @@ namespace MMDVM_Reflector
 {
     public class GlobalConfig
     {
+        public ReporterConfig Reporter { get; set; }
         public ReflectorConfig Reflectors { get; set; }
 
         public static GlobalConfig Load(string configPath)
@@ -47,5 +48,12 @@ namespace MMDVM_Reflector
         public P25_Reflector.Config P25 { get; set; }
         public NXDN_Reflector.Config Nxdn { get; set; }
         public YSF_Reflector.Config Ysf { get; set; }
+    }
+
+    public class ReporterConfig
+    {
+        public string Ip { get; set; }
+        public int Port { get; set; }
+        public bool Enabled { get; set; }
     }
 }

@@ -18,6 +18,7 @@
 * 
 */
 
+using Common.Api;
 using System.Net;
 
 #nullable disable
@@ -30,13 +31,17 @@ namespace YSF_Reflector
         public static string version = "01.00.00";
 
         private Config _config;
+        private Reporter _reporter;
+
         private List<YSFRepeater> _repeaters;
         private NetworkManager _networkManager;
+
         private CancellationTokenSource _cancellationTokenSource;
 
-        public YSFReflector(Config config)
+        public YSFReflector(Config config, Reporter reporter)
         {
             _config = config;
+            _reporter = reporter;
             _repeaters = new List<YSFRepeater>();
             _networkManager = new NetworkManager(_config.NetworkPort, _config.NetworkDebug);
             _cancellationTokenSource = new CancellationTokenSource();
@@ -54,7 +59,7 @@ namespace YSF_Reflector
                 return;
             }
 
-            Console.WriteLine($"YSFReflector version: {version} started.");
+            Console.WriteLine($"YSFReflector version: {version} started.\n");
 
             Task.Factory.StartNew(() => ReceiveLoop(_cancellationTokenSource.Token), _cancellationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
             Task.Factory.StartNew(() => CleanupLoop(_cancellationTokenSource.Token), _cancellationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);

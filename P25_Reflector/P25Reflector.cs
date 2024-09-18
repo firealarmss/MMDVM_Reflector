@@ -18,6 +18,7 @@
 * 
 */
 
+using Common.Api;
 using System.Net;
 
 #nullable disable
@@ -29,13 +30,17 @@ namespace P25_Reflector
         public static string version = "01.00.00";
 
         private Config _config;
+        private Reporter _reporter;
+
         private List<P25Peer> _peers;
         private NetworkManager _networkManager;
+
         private CancellationTokenSource _cancellationTokenSource;
 
-        public P25Reflector(Config config)
+        public P25Reflector(Config config, Reporter reporter)
         {
             _config = config;
+            _reporter = reporter;
             _peers = new List<P25Peer>();
             _cancellationTokenSource = new CancellationTokenSource();
         }
@@ -53,7 +58,7 @@ namespace P25_Reflector
                 return;
             }
 
-            Console.WriteLine($"P25Reflector version: {version} started.");
+            Console.WriteLine($"P25Reflector version: {version} started.\n");
 
             Task.Factory.StartNew(() => ReceiveLoop(_cancellationTokenSource.Token), _cancellationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
             Task.Factory.StartNew(() => CleanupLoop(_cancellationTokenSource.Token), _cancellationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);

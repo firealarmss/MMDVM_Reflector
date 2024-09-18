@@ -18,6 +18,7 @@
 * 
 */
 
+using Common.Api;
 using System.Net;
 
 #nullable disable
@@ -29,13 +30,17 @@ namespace NXDN_Reflector
         public static string version = "01.00.00";
 
         private Config _config;
+        private Reporter _reporter;
+
         private List<NXDNRepeater> _repeaters;
         private NetworkManager _networkManager;
+
         private CancellationTokenSource _cancellationTokenSource;
 
-        public NXDNReflector(Config config)
+        public NXDNReflector(Config config, Reporter reporter)
         {
             _config = config;
+            _reporter = reporter;
             _repeaters = new List<NXDNRepeater>();
             _networkManager = new NetworkManager(_config.NetworkPort, _config.NetworkDebug);
             _cancellationTokenSource = new CancellationTokenSource();
@@ -53,7 +58,7 @@ namespace NXDN_Reflector
                 return;
             }
 
-            Console.WriteLine($"NXDNReflector version: {version} started.");
+            Console.WriteLine($"NXDNReflector version: {version} started.\n");
 
             Task.Factory.StartNew(() => ReceiveLoop(_cancellationTokenSource.Token), _cancellationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
