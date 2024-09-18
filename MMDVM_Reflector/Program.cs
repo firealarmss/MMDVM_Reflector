@@ -1,25 +1,6 @@
-﻿/*
-* MMDVM_Reflector
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
-* 
-* Copyright (C) 2024 Caleb, KO4UYJ
-* 
-*/
-
-using NXDN_Reflector;
+﻿using NXDN_Reflector;
 using P25_Reflector;
+using System.Threading;
 using YSF_Reflector;
 
 #nullable disable
@@ -60,18 +41,21 @@ namespace MMDVM_Reflector
             {
                 if (config.Reflectors.P25.Enabled)
                 {
+                    Console.WriteLine("Starting P25Reflector");
                     p25Reflector = new P25Reflector(config.Reflectors.P25);
                     p25Reflector.Run();
                 }
 
                 if (config.Reflectors.Ysf.Enabled)
                 {
+                    Console.WriteLine("Starting YSFReflector");
                     ysfReflector = new YSFReflector(config.Reflectors.Ysf);
                     ysfReflector.Run();
                 }
 
                 if (config.Reflectors.Nxdn.Enabled)
                 {
+                    Console.WriteLine("Starting NXDNReflector");
                     nxdnReflector = new NXDNReflector(config.Reflectors.Nxdn);
                     nxdnReflector.Run();
                 }
@@ -83,25 +67,37 @@ namespace MMDVM_Reflector
                 cts.Cancel();
             };
 
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            Task.Run(() =>
+            {
+                while (!cts.Token.IsCancellationRequested)
+                {
+                    Console.ReadKey(true);
+                }
+            });
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
             try
             {
                 await Task.Delay(Timeout.Infinite, cts.Token);
             }
             catch (TaskCanceledException)
             {
-                Console.WriteLine("Task was canceled.");
             }
+            finally
+            {
+                Console.WriteLine("Stopping reflectors...");
+                if (config.Reflectors.P25.Enabled && p25Reflector != null)
+                    p25Reflector.Stop();
 
-            Console.WriteLine("Stopping reflectors...");
+                if (config.Reflectors.Ysf.Enabled && ysfReflector != null)
+                    ysfReflector.Stop();
 
-            if (config.Reflectors.P25.Enabled && p25Reflector != null)
-                p25Reflector.Stop();
+                if (config.Reflectors.Nxdn.Enabled && nxdnReflector != null)
+                    nxdnReflector.Stop();
 
-            if (config.Reflectors.Ysf.Enabled && ysfReflector != null)
-                ysfReflector.Stop();
-
-            if (config.Reflectors.Nxdn.Enabled && nxdnReflector != null)
-                nxdnReflector.Stop();
+                Console.WriteLine("Reflectors stopped.");
+            }
         }
     }
 }
