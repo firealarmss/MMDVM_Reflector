@@ -20,6 +20,7 @@
 
 using NXDN_Reflector;
 using P25_Reflector;
+using System.Threading;
 using YSF_Reflector;
 
 #nullable disable
@@ -28,7 +29,7 @@ namespace MMDVM_Reflector
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             P25Reflector p25Reflector = null;
             YSFReflector ysfReflector = null;
@@ -54,37 +55,69 @@ namespace MMDVM_Reflector
                 return;
             }
 
+            CancellationTokenSource cts = new CancellationTokenSource();
+
             if (config.Reflectors != null)
             {
                 if (config.Reflectors.P25.Enabled)
                 {
+                    Console.WriteLine("Starting P25Reflector");
                     p25Reflector = new P25Reflector(config.Reflectors.P25);
                     p25Reflector.Run();
                 }
 
                 if (config.Reflectors.Ysf.Enabled)
                 {
+                    Console.WriteLine("Starting YSFReflector");
                     ysfReflector = new YSFReflector(config.Reflectors.Ysf);
                     ysfReflector.Run();
                 }
 
                 if (config.Reflectors.Nxdn.Enabled)
                 {
+                    Console.WriteLine("Starting NXDNReflector");
                     nxdnReflector = new NXDNReflector(config.Reflectors.Nxdn);
                     nxdnReflector.Run();
                 }
             }
 
-            Console.ReadLine();
+            Console.CancelKeyPress += (sender, e) =>
+            {
+                e.Cancel = true;
+                cts.Cancel();
+            };
 
-            if (config.Reflectors.P25.Enabled && p25Reflector != null)
-                p25Reflector.Stop();
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            Task.Run(() =>
+            {
+                while (!cts.Token.IsCancellationRequested)
+                {
+                    Console.ReadKey(true);
+                }
+            });
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
-            if (config.Reflectors.Ysf.Enabled && ysfReflector != null)
-                ysfReflector.Stop();
+            try
+            {
+                await Task.Delay(Timeout.Infinite, cts.Token);
+            }
+            catch (TaskCanceledException)
+            {
+            }
+            finally
+            {
+                Console.WriteLine("Stopping reflectors...");
+                if (config.Reflectors.P25.Enabled && p25Reflector != null)
+                    p25Reflector.Stop();
 
-            if (config.Reflectors.Nxdn.Enabled && nxdnReflector != null)
-                nxdnReflector.Stop();
+                if (config.Reflectors.Ysf.Enabled && ysfReflector != null)
+                    ysfReflector.Stop();
+
+                if (config.Reflectors.Nxdn.Enabled && nxdnReflector != null)
+                    nxdnReflector.Stop();
+
+                Console.WriteLine("Reflectors stopped.");
+            }
         }
     }
 }
