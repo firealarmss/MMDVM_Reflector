@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NXDN_Reflector", "NXDN_Refl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YSF_Reflector", "YSF_Reflector\YSF_Reflector.csproj", "{EB4A3C31-0493-42F4-85DC-07AFACA022AE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{291211B0-3522-47AB-9AE2-9C355196DDD6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{EB4A3C31-0493-42F4-85DC-07AFACA022AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB4A3C31-0493-42F4-85DC-07AFACA022AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EB4A3C31-0493-42F4-85DC-07AFACA022AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{291211B0-3522-47AB-9AE2-9C355196DDD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{291211B0-3522-47AB-9AE2-9C355196DDD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{291211B0-3522-47AB-9AE2-9C355196DDD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{291211B0-3522-47AB-9AE2-9C355196DDD6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

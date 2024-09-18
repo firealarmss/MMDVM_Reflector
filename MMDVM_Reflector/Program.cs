@@ -28,7 +28,7 @@ namespace MMDVM_Reflector
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             P25Reflector p25Reflector = null;
             YSFReflector ysfReflector = null;
@@ -54,6 +54,8 @@ namespace MMDVM_Reflector
                 return;
             }
 
+            CancellationTokenSource cts = new CancellationTokenSource();
+
             if (config.Reflectors != null)
             {
                 if (config.Reflectors.P25.Enabled)
@@ -75,7 +77,19 @@ namespace MMDVM_Reflector
                 }
             }
 
-            Console.ReadLine();
+            Console.CancelKeyPress += (sender, e) =>
+            {
+                e.Cancel = true;
+                cts.Cancel();
+            };
+
+            try
+            {
+                await Task.Delay(Timeout.Infinite, cts.Token);
+            }
+            catch (TaskCanceledException)
+            {
+            }
 
             if (config.Reflectors.P25.Enabled && p25Reflector != null)
                 p25Reflector.Stop();
