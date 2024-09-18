@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/License-GPLv3-blue?style=for-the-badge)](https://www.gnu.org/licenses/gpl-3.0)
 
-## Debian 12 Basic Install (might work on debian 11, not tested):
+## Debian Basic Install:
 
 The script downloads dotnet for compiling, compiles the app, and creates a daemon file so it can run in the background.
 
