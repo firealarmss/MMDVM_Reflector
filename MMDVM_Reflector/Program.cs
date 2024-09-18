@@ -89,7 +89,10 @@ namespace MMDVM_Reflector
             }
             catch (TaskCanceledException)
             {
+                Console.WriteLine("Task was canceled.");
             }
+
+            Console.WriteLine("Stopping reflectors...");
 
             if (config.Reflectors.P25.Enabled && p25Reflector != null)
                 p25Reflector.Stop();
