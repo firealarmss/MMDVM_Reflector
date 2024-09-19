@@ -25,7 +25,7 @@ namespace Common.Api
                     BaseAddress = new Uri($"http://{_ip}:{_port}")
                 };
 
-                Console.WriteLine($"Started Reporter at http://{_ip}:{_port}");
+                Console.WriteLine($"Started Reporter at http://{_ip}:{_port}\n");
             }
         }
 
@@ -42,7 +42,7 @@ namespace Common.Api
                     BaseAddress = new Uri($"http://{_ip}:{_port}")
                 };
 
-                Console.WriteLine($"Started Reporter at http://{_ip}:{_port}");
+                Console.WriteLine($"Started Reporter at http://{_ip}:{_port}\n");
             }
         }
 

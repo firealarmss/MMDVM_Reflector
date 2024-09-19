@@ -66,21 +66,18 @@ namespace MMDVM_Reflector
             {
                 if (config.Reflectors.P25.Enabled)
                 {
-                    Console.WriteLine("Starting P25Reflector");
                     p25Reflector = new P25Reflector(config.Reflectors.P25, reporter);
                     p25Reflector.Run();
                 }
 
                 if (config.Reflectors.Ysf.Enabled)
                 {
-                    Console.WriteLine("Starting YSFReflector");
                     ysfReflector = new YSFReflector(config.Reflectors.Ysf, reporter);
                     ysfReflector.Run();
                 }
 
                 if (config.Reflectors.Nxdn.Enabled)
                 {
-                    Console.WriteLine("Starting NXDNReflector");
                     nxdnReflector = new NXDNReflector(config.Reflectors.Nxdn, reporter);
                     nxdnReflector.Run();
                 }
