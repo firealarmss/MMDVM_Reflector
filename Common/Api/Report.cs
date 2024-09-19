@@ -10,8 +10,8 @@ namespace Common.Api
     {
         public Report() { /* stub */ }
 
-        public int SrcId { get; set; }
-        public int DstId { get; set; }
+        public uint SrcId { get; set; }
+        public uint DstId { get; set; }
         public string Peer { get; set; }
         public string Extra {  get; set; }
         public DigitalMode Mode { get; set; }

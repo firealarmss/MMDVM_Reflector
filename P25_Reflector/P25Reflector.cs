@@ -123,6 +123,8 @@ namespace P25_Reflector
                     break;
 
                 case 0x64:
+                    if (repeater == null) return;
+
                     if (!repeater.State.Seen64)
                     {
                         repeater.State.Lcf = buffer[1];
@@ -131,6 +133,8 @@ namespace P25_Reflector
                     break;
 
                 case 0x65:
+                    if (repeater == null) return;
+
                     if (!repeater.State.Seen65)
                     {
                         repeater.State.DstId = (uint)((buffer[1] << 16) | (buffer[2] << 8) | buffer[3]);
@@ -139,17 +143,25 @@ namespace P25_Reflector
                     break;
 
                 case 0x66:
+                    if (repeater == null) return;
+
                     if (repeater.State.Seen64 && repeater.State.Seen65 && !repeater.State.Displayed)
                     {
                         repeater.State.SrcId = (uint)((buffer[1] << 16) | (buffer[2] << 8) | buffer[3]);
                         repeater.State.Displayed = true;
 
-                        Console.WriteLine($"P25: NET transmssion, srcId: {repeater.State.SrcId}, dstId: {repeater.State.DstId}, Client: {repeater.CallSign.Trim()}");
+                        _reporter.Send(new Report { DstId = repeater.State.DstId, SrcId = repeater.State.SrcId, Mode = Common.DigitalMode.P25, Type = Common.Api.Type.CALL_START });
+
+                        Console.WriteLine($"P25: NET transmssion, srcId: {repeater.State.SrcId}, dstId: {repeater.State.DstId}, Peer: {repeater.CallSign.Trim()}");
                     }
                     break;
 
                 case Opcode.NET_TERM:
-                    Console.WriteLine($"P25: NET end of transmission, srcId: {repeater.State.SrcId}, dstId: {repeater.State.DstId}, Client: {repeater.CallSign.Trim()}");
+                    if (repeater == null) return;
+
+                    _reporter.Send(new Report { DstId = repeater.State.DstId, SrcId = repeater.State.SrcId, Mode = Common.DigitalMode.P25, Type = Common.Api.Type.CALL_END });
+
+                    Console.WriteLine($"P25: NET end of transmission, srcId: {repeater.State.SrcId}, dstId: {repeater.State.DstId}, Peer: {repeater.CallSign.Trim()}");
                     repeater.State.Reset();
                     break;
 

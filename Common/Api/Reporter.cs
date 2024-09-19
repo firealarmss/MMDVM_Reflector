@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Net;
 using System.Text;
 
 namespace Common.Api
@@ -16,6 +17,16 @@ namespace Common.Api
             _ip = "127.0.0.1";
             _port = 3000;
             _enabled = false;
+
+            if (_enabled)
+            {
+                _httpClient = new HttpClient
+                {
+                    BaseAddress = new Uri($"http://{_ip}:{_port}")
+                };
+
+                Console.WriteLine($"Started Reporter at http://{_ip}:{_port}");
+            }
         }
 
         public Reporter(string ip, int port, bool enabled)
@@ -23,6 +34,16 @@ namespace Common.Api
             _ip = ip;
             _port = port;
             _enabled = enabled;
+
+            if (_enabled)
+            {
+                _httpClient = new HttpClient
+                {
+                    BaseAddress = new Uri($"http://{_ip}:{_port}")
+                };
+
+                Console.WriteLine($"Started Reporter at http://{_ip}:{_port}");
+            }
         }
 
         public async Task SendReportAsync(object reportData)
@@ -60,7 +81,7 @@ namespace Common.Api
             Task.Run(() => SendReportAsync(report));
         }
 
-        public void Send(int srcId, int dstId, string peer, DigitalMode mode, Type type, string extra)
+        public void Send(uint srcId, uint dstId, string peer, DigitalMode mode, Type type, string extra)
         {
             if (!_enabled) return;
 
