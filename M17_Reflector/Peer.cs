@@ -7,6 +7,8 @@ namespace M17_Reflector
     {
         public IPEndPoint Address { get; }
         public string Module { get; set; }
+        public bool IsTransmitting { get; set; }
+        public byte[] StreamId { get; set; }
 
         private DateTime _lastActive;
 

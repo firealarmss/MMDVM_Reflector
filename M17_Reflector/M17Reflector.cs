@@ -4,6 +4,7 @@ using Serilog;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace M17_Reflector
@@ -159,7 +160,6 @@ namespace M17_Reflector
                 peer.Refresh();
 
                 _protocol.SendPacket(CreatePingPacket(), ip);
-
                 //Console.WriteLine($"Peer {peer.Address} PING.");
             } else
             {
@@ -173,6 +173,7 @@ namespace M17_Reflector
             if (_peers.TryGetValue(ip.ToString(), out var peer))
             {
                 byte[] callsign = new byte[6];
+                byte[] streamid = new byte[2];
 
                 Array.Copy(packet, 12, callsign, 0, 6);
                 Callsign sourceCallsign = new Callsign(callsign);
@@ -182,15 +183,19 @@ namespace M17_Reflector
                 Callsign destinationCallsign = new Callsign(callsign);
                 string dstid = destinationCallsign.GetCS();
 
+                Array.Copy(packet, 4, streamid, 0, 2);
+
                 string reflector = dstid.Substring(4, 3);
                 string module = dstid.Substring(8, 1);
+
+                peer.StreamId = streamid;
 
                 if (reflector != _config.Reflector)
                     _protocol.SendPacket(CreateNackPacket(), ip);
 
                 BroadCastPacket(packet, ip, module);
 
-                _logger.Information($"M17: Voice transmission, callsign: {srcid.Substring(0, 6)}, destination: {dstid}, from {ip}");
+                _logger.Information($"M17: Voice transmission, streamid: {BitConverter.ToString(streamid).Replace("-", string.Empty)} callsign: {srcid.Substring(0, 6)}, destination: {dstid}, from {ip}");
             }
             else
             {
