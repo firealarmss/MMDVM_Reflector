@@ -22,3 +22,9 @@ reflectors:
     enabled: true
     networkPort: 32030
     networkDebug: false
+
+  m17:
+    enabled: true
+    networkPort: 12345
+    reflector: "001" # This is the three characters after "M17-"; for example if you are M17-ABC the value for this config would be ABC
+    networkDebug: false

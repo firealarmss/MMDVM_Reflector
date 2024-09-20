@@ -55,6 +55,7 @@ namespace MMDVM_Reflector
         public P25_Reflector.Config P25 { get; set; }
         public NXDN_Reflector.Config Nxdn { get; set; }
         public YSF_Reflector.Config Ysf { get; set; }
+        public M17_Reflector.Config M17 { get; set; }
     }
 
     public class ReporterConfig

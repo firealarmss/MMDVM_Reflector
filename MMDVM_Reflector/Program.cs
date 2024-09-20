@@ -19,6 +19,7 @@
 */
 
 using Common.Api;
+using M17_Reflector;
 using NXDN_Reflector;
 using P25_Reflector;
 using Serilog;
@@ -38,6 +39,7 @@ namespace MMDVM_Reflector
             P25Reflector p25Reflector = null;
             YSFReflector ysfReflector = null;
             NXDNReflector nxdnReflector = null;
+            M17Reflector m17Reflector = null;
 
             string configFilePath = "config.yml";
             var configArg = args.FirstOrDefault(arg => arg.StartsWith("--config="));
@@ -91,6 +93,12 @@ namespace MMDVM_Reflector
                     nxdnReflector = new NXDNReflector(config.Reflectors.Nxdn, reporter, Log.Logger);
                     nxdnReflector.Run();
                 }
+
+                if (config.Reflectors.M17.Enabled)
+                {
+                    m17Reflector = new M17Reflector(config.Reflectors.M17, reporter, Log.Logger);
+                    m17Reflector.Run();
+                }
             }
 
             Console.CancelKeyPress += (sender, e) =>
@@ -127,6 +135,9 @@ namespace MMDVM_Reflector
 
                 if (config.Reflectors.Nxdn.Enabled && nxdnReflector != null)
                     nxdnReflector.Stop();
+
+                if (config.Reflectors.M17.Enabled && m17Reflector != null)
+                    m17Reflector.Stop();
 
                 Console.WriteLine("Reflectors stopped.");
             }
