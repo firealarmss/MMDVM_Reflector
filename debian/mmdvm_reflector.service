@@ -1,0 +1,13 @@
+[Unit]
+Description=MMDVM Reflector Daemon
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory=/
+ExecStart=/opt/MMDVM_Reflector/MMDVM_Reflector/bin/Debug/net8.0/MMDVM_Reflector --config=/opt/MMDVM_Reflector/MMDVM_Reflector/configs/config.yml
+Restart=on-failure
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
