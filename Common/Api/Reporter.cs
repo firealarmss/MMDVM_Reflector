@@ -19,6 +19,7 @@
 */
 
 using Newtonsoft.Json;
+using Serilog;
 using System.Text;
 
 namespace Common.Api
@@ -28,31 +29,18 @@ namespace Common.Api
         private string _ip;
         private int _port;
         private bool _enabled;
+        private ILogger _logger;
 
         private readonly HttpClient _httpClient;
 
-        public Reporter()
-        {
-            _ip = "127.0.0.1";
-            _port = 3000;
-            _enabled = false;
+        public Reporter() { /* sub */ }
 
-            if (_enabled)
-            {
-                _httpClient = new HttpClient
-                {
-                    BaseAddress = new Uri($"http://{_ip}:{_port}")
-                };
-
-                Console.WriteLine($"Started Reporter at http://{_ip}:{_port}\n");
-            }
-        }
-
-        public Reporter(string ip, int port, bool enabled)
+        public Reporter(string ip, int port, bool enabled, ILogger logger)
         {
             _ip = ip;
             _port = port;
             _enabled = enabled;
+            _logger = logger;
 
             if (_enabled)
             {
@@ -61,7 +49,7 @@ namespace Common.Api
                     BaseAddress = new Uri($"http://{_ip}:{_port}")
                 };
 
-                Console.WriteLine($"Started Reporter at http://{_ip}:{_port}\n");
+                _logger.Information($"Started Reporter at http://{_ip}:{_port}");
             }
         }
 
@@ -84,7 +72,7 @@ namespace Common.Api
                 }
                 else
                 {
-                    Console.WriteLine($"REPORTER: Failed to send: {response.StatusCode}");
+                    _logger.Error($"REPORTER: Failed to send: {response.StatusCode}");
                 }
             }
             catch (Exception ex)

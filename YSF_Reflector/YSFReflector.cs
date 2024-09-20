@@ -19,7 +19,10 @@
 */
 
 using Common.Api;
+using Newtonsoft.Json;
+using Serilog;
 using System.Net;
+using System.Numerics;
 
 #nullable disable
 
@@ -32,16 +35,19 @@ namespace YSF_Reflector
 
         private Config _config;
         private Reporter _reporter;
+        private ILogger _logger;
 
         private List<YSFRepeater> _repeaters;
         private NetworkManager _networkManager;
 
         private CancellationTokenSource _cancellationTokenSource;
 
-        public YSFReflector(Config config, Reporter reporter)
+        public YSFReflector(Config config, Reporter reporter, ILogger logger)
         {
             _config = config;
             _reporter = reporter;
+            _logger = logger;   
+
             _repeaters = new List<YSFRepeater>();
             _networkManager = new NetworkManager(_config.NetworkPort, _config.NetworkDebug);
             _cancellationTokenSource = new CancellationTokenSource();
@@ -49,17 +55,17 @@ namespace YSF_Reflector
 
         public void Run()
         {
-            Console.WriteLine("Starting YSFReflector");
-            Console.WriteLine($"    Port: {_config.NetworkPort}");
-            Console.WriteLine($"    Debug: {_config.NetworkDebug}");
+            _logger.Information("Starting YSFReflector");
+            _logger.Information($"    Port: {_config.NetworkPort}");
+            _logger.Information($"    Debug: {_config.NetworkDebug}");
 
             if (!_networkManager.OpenConnection())
             {
-                Console.WriteLine("YSFReflector network open failed.");
+                _logger.Error("YSFReflector network open failed.");
                 return;
             }
 
-            Console.WriteLine($"YSFReflector version: {version} started.\n");
+            _logger.Information($"YSFReflector version: {version} started.\n");
 
             Task.Factory.StartNew(() => ReceiveLoop(_cancellationTokenSource.Token), _cancellationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
             Task.Factory.StartNew(() => CleanupLoop(_cancellationTokenSource.Token), _cancellationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
@@ -104,7 +110,8 @@ namespace YSF_Reflector
                 {
                     repeater = new YSFRepeater(senderAddress, buffer);
                     _repeaters.Add(repeater);
-                    Console.WriteLine($"YSF: New connection: {repeater.CallSign}; Address: {senderAddress}");
+                    _reporter.Send(new Report { Mode = Common.DigitalMode.YSF, Type = Common.Api.Type.CONNECTION, Extra = PreparePeersListForReport(_repeaters), DateTime = DateTime.Now });
+                    _logger.Information($"YSF: New connection: {repeater.CallSign}; Address: {senderAddress}");
                 }
                 repeater.Refresh();
                 _networkManager.SendPollResponse(senderAddress);
@@ -112,8 +119,9 @@ namespace YSF_Reflector
             else if (buffer.Length >= 4 && System.Text.Encoding.ASCII.GetString(buffer, 0, 4) == "YSFU" && repeater != null)
             {
                 // "YSFU" unlink
-                Console.WriteLine($"YSF: Removing {repeater.CallSign}; YSF_UNLINK received.");
+                _logger.Information($"YSF: Removing {repeater.CallSign}; YSF_UNLINK received.");
                 _repeaters.Remove(repeater);
+                _reporter.Send(new Report { Mode = Common.DigitalMode.YSF, Type = Common.Api.Type.CONNECTION, Extra = PreparePeersListForReport(_repeaters), DateTime = DateTime.Now });
             }
             else if (buffer.Length >= 4 && System.Text.Encoding.ASCII.GetString(buffer, 0, 4) == "YSFD" && repeater != null)
             {
@@ -138,14 +146,18 @@ namespace YSF_Reflector
 
             if (!repeater.IsTransmitting)
             {
-                Console.WriteLine($"YSF: NET transmssion, srcId: {srcCallsign}, dstId: {dstCallsign}, Callsign: {tagCallsign}");
+                _logger.Information($"YSF: NET transmssion, srcId: {srcCallsign}, dstId: {dstCallsign}, Callsign: {tagCallsign}");
                 repeater.StartTransmission();
+                _reporter.Send(uint.Parse(srcCallsign), uint.Parse(dstCallsign), tagCallsign, Common.DigitalMode.YSF, Common.Api.Type.CALL_START, string.Empty);
+                _reporter.Send(new Report { Mode = Common.DigitalMode.YSF, Type = Common.Api.Type.CONNECTION, Extra = PreparePeersListForReport(_repeaters), DateTime = DateTime.Now });
             }
 
             if ((buffer[34] & 0x01) == 0x01)
             {
-                Console.WriteLine($"YSF: NET end of transmission, srcId: {srcCallsign}, dstId: {dstCallsign}, Callsign: {tagCallsign}");
+                _logger.Information($"YSF: NET end of transmission, srcId: {srcCallsign}, dstId: {dstCallsign}, Callsign: {tagCallsign}");
                 repeater.EndTransmission();
+                _reporter.Send(uint.Parse(srcCallsign), uint.Parse(dstCallsign), tagCallsign, Common.DigitalMode.YSF, Common.Api.Type.CALL_END, string.Empty);
+                _reporter.Send(new Report { Mode = Common.DigitalMode.YSF, Type = Common.Api.Type.CONNECTION, Extra = PreparePeersListForReport(_repeaters), DateTime = DateTime.Now });
             }
 
             RelayToAllRepeaters(buffer, senderAddress);
@@ -168,13 +180,25 @@ namespace YSF_Reflector
             }
         }
 
+        private string PreparePeersListForReport(List<YSFRepeater> repeaters)
+        {
+            var peersInfo = repeaters.Select(repeater => new
+            {
+                CallSign = repeater.CallSign.Trim(),
+                Address = repeater.Address.ToString(),
+                Transmitting = repeater.IsTransmitting
+            });
+
+            return JsonConvert.SerializeObject(peersInfo, Formatting.Indented);
+        }
+
         private void CleanUpRepeaters()
         {
             foreach (var repeater in _repeaters)
             {
                 if (repeater.IsExpired())
                 {
-                    Console.WriteLine($"YSF: Removing repeater {repeater.CallSign} due to inactivity.");
+                    _logger.Warning($"YSF: Removing repeater {repeater.CallSign} due to inactivity.");
                     _repeaters.Remove(repeater);
                     break;
                 }

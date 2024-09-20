@@ -21,6 +21,7 @@
 using Common.Api;
 using NXDN_Reflector;
 using P25_Reflector;
+using Serilog;
 using System.Threading;
 using YSF_Reflector;
 
@@ -38,8 +39,6 @@ namespace MMDVM_Reflector
             YSFReflector ysfReflector = null;
             NXDNReflector nxdnReflector = null;
 
-            Console.WriteLine("MMDVM Reflector Suite");
-
             string configFilePath = "config.yml";
             var configArg = args.FirstOrDefault(arg => arg.StartsWith("--config="));
             if (configArg != null)
@@ -51,8 +50,6 @@ namespace MMDVM_Reflector
             try
             {
                 config = GlobalConfig.Load(configFilePath);
-                if (config.Reporter != null)
-                    reporter = new Reporter(config.Reporter.Ip, config.Reporter.Port, config.Reporter.Enabled);
             }
             catch (Exception ex)
             {
@@ -60,25 +57,38 @@ namespace MMDVM_Reflector
                 return;
             }
 
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .WriteTo.File($"{config.Logger.Path}mmdvm_reflector.log", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
+
             CancellationTokenSource cts = new CancellationTokenSource();
+
+            Log.Logger.Information("MMDVM Reflector Suite" +
+                "\n             This software is intended for ham radio use only" +
+                "\n             Copyright 2024 Caleb, KO4UYJ");
+
+            if (config.Reporter != null)
+                reporter = new Reporter(config.Reporter.Ip, config.Reporter.Port, config.Reporter.Enabled, Log.Logger);
 
             if (config.Reflectors != null)
             {
                 if (config.Reflectors.P25.Enabled)
                 {
-                    p25Reflector = new P25Reflector(config.Reflectors.P25, reporter);
+                    p25Reflector = new P25Reflector(config.Reflectors.P25, reporter, Log.Logger);
                     p25Reflector.Run();
                 }
 
                 if (config.Reflectors.Ysf.Enabled)
                 {
-                    ysfReflector = new YSFReflector(config.Reflectors.Ysf, reporter);
+                    ysfReflector = new YSFReflector(config.Reflectors.Ysf, reporter, Log.Logger);
                     ysfReflector.Run();
                 }
 
                 if (config.Reflectors.Nxdn.Enabled)
                 {
-                    nxdnReflector = new NXDNReflector(config.Reflectors.Nxdn, reporter);
+                    nxdnReflector = new NXDNReflector(config.Reflectors.Nxdn, reporter, Log.Logger);
                     nxdnReflector.Run();
                 }
             }

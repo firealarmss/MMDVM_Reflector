@@ -21,6 +21,7 @@
 using Common;
 using Common.Api;
 using Newtonsoft.Json;
+using Serilog;
 using System.Net;
 
 #nullable disable
@@ -33,34 +34,37 @@ namespace P25_Reflector
 
         private Config _config;
         private Reporter _reporter;
+        private ILogger _logger;
 
         private List<P25Peer> _peers;
         private NetworkManager _networkManager;
 
         private CancellationTokenSource _cancellationTokenSource;
 
-        public P25Reflector(Config config, Reporter reporter)
+        public P25Reflector(Config config, Reporter reporter, ILogger logger)
         {
             _config = config;
             _reporter = reporter;
+            _logger = logger;
+
             _peers = new List<P25Peer>();
             _cancellationTokenSource = new CancellationTokenSource();
         }
 
         public void Run()
         {
-            Console.WriteLine("Starting P25Reflector");
-            Console.WriteLine($"    Port: {_config.NetworkPort}");
-            Console.WriteLine($"    Debug: {_config.NetworkDebug}");
+            _logger.Information("Starting P25Reflector");
+            _logger.Information($"    Port: {_config.NetworkPort}");
+            _logger.Information($"    Debug: {_config.NetworkDebug}");
 
             _networkManager = new NetworkManager(_config.NetworkPort, _config.NetworkDebug);
             if (!_networkManager.OpenConnection())
             {
-                Console.WriteLine("P25Reflector network open failed");
+                _logger.Error("P25Reflector network open failed");
                 return;
             }
 
-            Console.WriteLine($"P25Reflector version: {version} started.\n");
+            _logger.Information($"P25Reflector version: {version} started.\n");
 
             Task.Factory.StartNew(() => ReceiveLoop(_cancellationTokenSource.Token), _cancellationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
             Task.Factory.StartNew(() => CleanupLoop(_cancellationTokenSource.Token), _cancellationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
@@ -107,8 +111,8 @@ namespace P25_Reflector
                         repeater = new P25Peer(senderAddress, buffer);
                         _peers.Add(repeater);
 
-                        _reporter.Send(0, 0, string.Empty, 0, Common.Api.Type.CONNECTION, PreparePeersListForReport(_peers));
-                        Console.WriteLine($"P25: New connection: {repeater.CallSign.Trim()}; Address: {senderAddress}");
+                        _reporter.Send(0, 0, string.Empty, DigitalMode.P25, Common.Api.Type.CONNECTION, PreparePeersListForReport(_peers));
+                        _logger.Information($"P25: New connection: {repeater.CallSign.Trim()}; Address: {senderAddress}");
                     }
                     else
                     {
@@ -121,9 +125,9 @@ namespace P25_Reflector
                 case Opcode.NET_UNLINK:
                     if (repeater != null)
                     {
-                        Console.WriteLine($"P25: Removing {repeater.CallSign.Trim()}; NET_UNLINK received.");
+                        _logger.Information($"P25: Removing {repeater.CallSign.Trim()}; NET_UNLINK received.");
                         _peers.Remove(repeater);
-                        _reporter.Send(0, 0, string.Empty, 0, Common.Api.Type.CONNECTION, PreparePeersListForReport(_peers));
+                        _reporter.Send(0, 0, string.Empty, DigitalMode.P25, Common.Api.Type.CONNECTION, PreparePeersListForReport(_peers));
                     }
                     break;
 
@@ -162,7 +166,7 @@ namespace P25_Reflector
                         _reporter.Send(new Report { DstId = repeater.State.DstId, SrcId = repeater.State.SrcId, Peer = repeater.CallSign, Mode = Common.DigitalMode.P25, Type = Common.Api.Type.CALL_START, DateTime = DateTime.Now });
                         _reporter.Send(0, 0, string.Empty, 0, Common.Api.Type.CONNECTION, PreparePeersListForReport(_peers));
 
-                        Console.WriteLine($"P25: NET transmssion, srcId: {repeater.State.SrcId}, dstId: {repeater.State.DstId}, Peer: {repeater.CallSign.Trim()}");
+                        _logger.Information($"P25: NET transmssion, srcId: {repeater.State.SrcId}, dstId: {repeater.State.DstId}, Peer: {repeater.CallSign.Trim()}");
                     }
                     break;
 
@@ -189,7 +193,7 @@ namespace P25_Reflector
 
                     _reporter.Send(new Report { DstId = repeater.State.DstId, SrcId = repeater.State.SrcId, Peer = repeater.CallSign, Mode = Common.DigitalMode.P25, Type = Common.Api.Type.CALL_END, DateTime = DateTime.Now });
 
-                    Console.WriteLine($"P25: NET end of transmission, srcId: {repeater.State.SrcId}, dstId: {repeater.State.DstId}, Peer: {repeater.CallSign.Trim()}");
+                    _logger.Information($"P25: NET end of transmission, srcId: {repeater.State.SrcId}, dstId: {repeater.State.DstId}, Peer: {repeater.CallSign.Trim()}");
                     repeater.State.Reset();
 
                     _reporter.Send(0, 0, string.Empty, 0, Common.Api.Type.CONNECTION, PreparePeersListForReport(_peers));
@@ -222,7 +226,7 @@ namespace P25_Reflector
             {
                 if (repeater.IsExpired())
                 {
-                    Console.WriteLine($"P25: Removing peer {repeater.CallSign.Trim()} due to inactivity.");
+                    _logger.Warning($"P25: Removing peer {repeater.CallSign.Trim()} due to inactivity.");
                     _peers.Remove(repeater);
 
                     _reporter.Send(0, 0, string.Empty, 0, Common.Api.Type.CONNECTION, PreparePeersListForReport(_peers));
@@ -250,7 +254,6 @@ namespace P25_Reflector
 
             return JsonConvert.SerializeObject(peersInfo, Formatting.Indented);
         }
-
 
         private P25Peer FindRepeater(IPEndPoint address)
         {

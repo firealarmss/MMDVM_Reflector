@@ -29,6 +29,8 @@ namespace MMDVM_Reflector
     {
         public ReporterConfig Reporter { get; set; }
         public ReflectorConfig Reflectors { get; set; }
+        public LoggerConfig Logger { get; set; }
+        
 
         public static GlobalConfig Load(string configPath)
         {
@@ -41,6 +43,11 @@ namespace MMDVM_Reflector
                 return deserializer.Deserialize<GlobalConfig>(reader);
             }
         }
+    }
+
+    public class LoggerConfig
+    {
+        public string Path { get; set; }
     }
 
     public class ReflectorConfig
