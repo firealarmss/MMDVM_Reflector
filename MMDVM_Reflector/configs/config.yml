@@ -1,4 +1,4 @@
-reporter:
+reporter: # reporter is the API port for the dashboard, do not change this unless you need to!
     ip: 127.0.0.1
     port: 3000
     enabled: false
@@ -22,4 +22,4 @@ reflectors:
 
 # Under the 'enabled:' section please replace false with true to enable the mode
 # Feel free to change the port if interested
-# MMDVM Gateways will not connect to this directly becuase they share the same port, so you might want to host your reflector on a different machine then your DVSwitc
+# MMDVM Gateways will not connect to this directly becuase they share the same port, so you might want to host your reflector on a different machine then your DVSwitch
