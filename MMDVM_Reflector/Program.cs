@@ -18,6 +18,7 @@
 * 
 */
 
+using Common.Api;
 using NXDN_Reflector;
 using P25_Reflector;
 using System.Threading;
@@ -31,6 +32,8 @@ namespace MMDVM_Reflector
     {
         static async Task Main(string[] args)
         {
+            Reporter reporter = new Reporter();
+
             P25Reflector p25Reflector = null;
             YSFReflector ysfReflector = null;
             NXDNReflector nxdnReflector = null;
@@ -48,6 +51,8 @@ namespace MMDVM_Reflector
             try
             {
                 config = GlobalConfig.Load(configFilePath);
+                if (config.Reporter != null)
+                    reporter = new Reporter(config.Reporter.Ip, config.Reporter.Port, config.Reporter.Enabled);
             }
             catch (Exception ex)
             {
@@ -61,22 +66,19 @@ namespace MMDVM_Reflector
             {
                 if (config.Reflectors.P25.Enabled)
                 {
-                    Console.WriteLine("Starting P25Reflector");
-                    p25Reflector = new P25Reflector(config.Reflectors.P25);
+                    p25Reflector = new P25Reflector(config.Reflectors.P25, reporter);
                     p25Reflector.Run();
                 }
 
                 if (config.Reflectors.Ysf.Enabled)
                 {
-                    Console.WriteLine("Starting YSFReflector");
-                    ysfReflector = new YSFReflector(config.Reflectors.Ysf);
+                    ysfReflector = new YSFReflector(config.Reflectors.Ysf, reporter);
                     ysfReflector.Run();
                 }
 
                 if (config.Reflectors.Nxdn.Enabled)
                 {
-                    Console.WriteLine("Starting NXDNReflector");
-                    nxdnReflector = new NXDNReflector(config.Reflectors.Nxdn);
+                    nxdnReflector = new NXDNReflector(config.Reflectors.Nxdn, reporter);
                     nxdnReflector.Run();
                 }
             }

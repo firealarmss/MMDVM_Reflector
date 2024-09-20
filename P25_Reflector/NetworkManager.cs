@@ -20,6 +20,7 @@
 
 using System.Net.Sockets;
 using System.Net;
+using Common;
 
 namespace P25_Reflector
 {
@@ -52,7 +53,7 @@ namespace P25_Reflector
             byte[] data = _udpClient.Receive(ref remoteEndPoint);
             if (_debug)
             {
-                Console.WriteLine("P25: Received data: " + BitConverter.ToString(data));
+                Console.WriteLine($"P25: Received data:\n{Utils.HexDump(data)}");
             }
             return (data, remoteEndPoint);
         }
@@ -62,7 +63,7 @@ namespace P25_Reflector
             _udpClient.Send(data, data.Length, destination);
             if (_debug)
             {
-                Console.WriteLine("P25: Sent data: " + BitConverter.ToString(data));
+                Console.WriteLine($"P25: Sent data:\n{Utils.HexDump(data)}");
             }
         }
     }

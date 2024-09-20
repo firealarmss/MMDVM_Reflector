@@ -18,6 +18,9 @@
 * 
 */
 
+using Common;
+using Common.Api;
+using Newtonsoft.Json;
 using System.Net;
 
 #nullable disable
@@ -29,13 +32,17 @@ namespace P25_Reflector
         public static string version = "01.00.00";
 
         private Config _config;
+        private Reporter _reporter;
+
         private List<P25Peer> _peers;
         private NetworkManager _networkManager;
+
         private CancellationTokenSource _cancellationTokenSource;
 
-        public P25Reflector(Config config)
+        public P25Reflector(Config config, Reporter reporter)
         {
             _config = config;
+            _reporter = reporter;
             _peers = new List<P25Peer>();
             _cancellationTokenSource = new CancellationTokenSource();
         }
@@ -53,7 +60,7 @@ namespace P25_Reflector
                 return;
             }
 
-            Console.WriteLine($"P25Reflector version: {version} started.");
+            Console.WriteLine($"P25Reflector version: {version} started.\n");
 
             Task.Factory.StartNew(() => ReceiveLoop(_cancellationTokenSource.Token), _cancellationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
             Task.Factory.StartNew(() => CleanupLoop(_cancellationTokenSource.Token), _cancellationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
@@ -99,6 +106,8 @@ namespace P25_Reflector
                     {
                         repeater = new P25Peer(senderAddress, buffer);
                         _peers.Add(repeater);
+
+                        _reporter.Send(0, 0, string.Empty, 0, Common.Api.Type.CONNECTION, PreparePeersListForReport(_peers));
                         Console.WriteLine($"P25: New connection: {repeater.CallSign.Trim()}; Address: {senderAddress}");
                     }
                     else
@@ -114,10 +123,17 @@ namespace P25_Reflector
                     {
                         Console.WriteLine($"P25: Removing {repeater.CallSign.Trim()}; NET_UNLINK received.");
                         _peers.Remove(repeater);
+                        _reporter.Send(0, 0, string.Empty, 0, Common.Api.Type.CONNECTION, PreparePeersListForReport(_peers));
                     }
                     break;
 
+                case 0x62:
+                case 0x63:
+                    break;
+
                 case 0x64:
+                    if (repeater == null) return;
+
                     if (!repeater.State.Seen64)
                     {
                         repeater.State.Lcf = buffer[1];
@@ -126,6 +142,8 @@ namespace P25_Reflector
                     break;
 
                 case 0x65:
+                    if (repeater == null) return;
+
                     if (!repeater.State.Seen65)
                     {
                         repeater.State.DstId = (uint)((buffer[1] << 16) | (buffer[2] << 8) | buffer[3]);
@@ -134,18 +152,47 @@ namespace P25_Reflector
                     break;
 
                 case 0x66:
+                    if (repeater == null) return;
+
                     if (repeater.State.Seen64 && repeater.State.Seen65 && !repeater.State.Displayed)
                     {
                         repeater.State.SrcId = (uint)((buffer[1] << 16) | (buffer[2] << 8) | buffer[3]);
                         repeater.State.Displayed = true;
 
-                        Console.WriteLine($"P25: NET transmssion, srcId: {repeater.State.SrcId}, dstId: {repeater.State.DstId}, Client: {repeater.CallSign.Trim()}");
+                        _reporter.Send(new Report { DstId = repeater.State.DstId, SrcId = repeater.State.SrcId, Peer = repeater.CallSign, Mode = Common.DigitalMode.P25, Type = Common.Api.Type.CALL_START, DateTime = DateTime.Now });
+                        _reporter.Send(0, 0, string.Empty, 0, Common.Api.Type.CONNECTION, PreparePeersListForReport(_peers));
+
+                        Console.WriteLine($"P25: NET transmssion, srcId: {repeater.State.SrcId}, dstId: {repeater.State.DstId}, Peer: {repeater.CallSign.Trim()}");
                     }
                     break;
 
+                case 0x67:
+                case 0x68:
+                case 0x69:
+                case 0x6A:
+                case 0x6B:
+                case 0x6C:
+                case 0x6D:
+                case 0x6E:
+                case 0x6F:
+                case 0x70:
+                case 0x71:
+                case 0x72:
+                case 0x73:
+                    break;
+
                 case Opcode.NET_TERM:
-                    Console.WriteLine($"P25: NET end of transmission, srcId: {repeater.State.SrcId}, dstId: {repeater.State.DstId}, Client: {repeater.CallSign.Trim()}");
+                    if (repeater == null) return;
+
+                    if (repeater.State.SrcId <= 0 || repeater.State.DstId <= 0)
+                        return;
+
+                    _reporter.Send(new Report { DstId = repeater.State.DstId, SrcId = repeater.State.SrcId, Peer = repeater.CallSign, Mode = Common.DigitalMode.P25, Type = Common.Api.Type.CALL_END, DateTime = DateTime.Now });
+
+                    Console.WriteLine($"P25: NET end of transmission, srcId: {repeater.State.SrcId}, dstId: {repeater.State.DstId}, Peer: {repeater.CallSign.Trim()}");
                     repeater.State.Reset();
+
+                    _reporter.Send(0, 0, string.Empty, 0, Common.Api.Type.CONNECTION, PreparePeersListForReport(_peers));
                     break;
 
                 default:
@@ -173,15 +220,37 @@ namespace P25_Reflector
         {
             foreach (var repeater in _peers)
             {
-                // Console.WriteLine(repeater.Address);
                 if (repeater.IsExpired())
                 {
-                    Console.WriteLine($"P25: Removing repeater {repeater.CallSign.Trim()} due to inactivity.");
+                    Console.WriteLine($"P25: Removing peer {repeater.CallSign.Trim()} due to inactivity.");
                     _peers.Remove(repeater);
+
+                    _reporter.Send(0, 0, string.Empty, 0, Common.Api.Type.CONNECTION, PreparePeersListForReport(_peers));
                     break;
                 }
             }
         }
+
+        private string PreparePeersListForReport(List<P25Peer> peers)
+        {
+            var peersInfo = peers.Select(peer => new
+            {
+                CallSign = peer.CallSign.Trim(),
+                Address = peer.Address.ToString(),
+                TransmissionState = new
+                {
+                    Seen64 = peer.State.Seen64,
+                    Seen65 = peer.State.Seen65,
+                    Displayed = peer.State.Displayed,
+                    Lcf = peer.State.Lcf,
+                    SrcId = peer.State.SrcId,
+                    DstId = peer.State.DstId
+                }
+            });
+
+            return JsonConvert.SerializeObject(peersInfo, Formatting.Indented);
+        }
+
 
         private P25Peer FindRepeater(IPEndPoint address)
         {
