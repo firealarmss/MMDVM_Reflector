@@ -1,1 +1,13 @@
+[Unit]
+Description=MMDVM Reflector Daemon
+After=network.target
 
+[Service]
+User=root
+WorkingDirectory=/
+ExecStart=/MMDVM_Reflector/dashboard/ #TODO
+Restart=on-failure
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
