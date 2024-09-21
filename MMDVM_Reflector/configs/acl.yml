@@ -1,4 +1,3 @@
-entries:
-    - callsign: "N0PE"
-      rid: 123456
-      allowed: true
+- allowed: true
+  callsign: N0PE
+  rid: 123456
