@@ -262,7 +262,7 @@ namespace P25_Reflector
                         repeater.State.Displayed = true;
 
                         _reporter.Send(new Report { DstId = repeater.State.DstId, SrcId = repeater.State.SrcId, Peer = repeater.CallSign, Mode = Common.DigitalMode.P25, Type = Common.Api.Type.CALL_START, DateTime = DateTime.Now });
-                        _reporter.Send(0, 0, string.Empty, 0, Common.Api.Type.CONNECTION, PreparePeersListForReport(_peers));
+                        _reporter.Send(0, 0, string.Empty, DigitalMode.P25, Common.Api.Type.CONNECTION, PreparePeersListForReport(_peers));
 
                         _logger.Information($"P25: NET transmssion, srcId: {repeater.State.SrcId}, dstId: {repeater.State.DstId}, Peer: {repeater.CallSign.Trim()}");
                     }
@@ -294,7 +294,7 @@ namespace P25_Reflector
                     _logger.Information($"P25: NET end of transmission, srcId: {repeater.State.SrcId}, dstId: {repeater.State.DstId}, Peer: {repeater.CallSign.Trim()}");
                     repeater.State.Reset();
 
-                    _reporter.Send(0, 0, string.Empty, 0, Common.Api.Type.CONNECTION, PreparePeersListForReport(_peers));
+                    _reporter.Send(0, 0, string.Empty, DigitalMode.P25, Common.Api.Type.CONNECTION, PreparePeersListForReport(_peers));
                     break;
 
                 default:
@@ -330,7 +330,7 @@ namespace P25_Reflector
                     _logger.Warning($"P25: Removing peer {repeater.CallSign.Trim()} due to inactivity.");
                     _peers.Remove(repeater);
 
-                    _reporter.Send(0, 0, string.Empty, 0, Common.Api.Type.CONNECTION, PreparePeersListForReport(_peers));
+                    _reporter.Send(0, 0, string.Empty, DigitalMode.P25, Common.Api.Type.CONNECTION, PreparePeersListForReport(_peers));
                     break;
                 }
             }
