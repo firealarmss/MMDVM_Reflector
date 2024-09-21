@@ -43,6 +43,8 @@ namespace MMDVM_Reflector
             NXDNReflector nxdnReflector = null;
             M17Reflector m17Reflector = null;
 
+            RestApi restApi = null;
+
             string configFilePath = "config.yml";
             var configArg = args.FirstOrDefault(arg => arg.StartsWith("--config="));
             if (configArg != null)
@@ -109,7 +111,7 @@ namespace MMDVM_Reflector
                 if (config.Rest != null && config.Rest.Enabled)
                 {
                     var reflectorContext = new ReflectorContext(p25Reflector, ysfReflector, nxdnReflector, m17Reflector);
-                    var restApi = new RestApi(config.Rest.Password, reflectorContext, Log.Logger, $"http://{config.Rest.Ip}:{config.Rest.Port}/");
+                    restApi = new RestApi(config.Rest.Password, reflectorContext, Log.Logger, $"http://{config.Rest.Ip}:{config.Rest.Port}/");
 
                     restApi.Start();
                 }
@@ -152,6 +154,9 @@ namespace MMDVM_Reflector
 
                 if (config.Reflectors.M17.Enabled && m17Reflector != null)
                     m17Reflector.Stop();
+
+                if (config.Rest.Enabled && restApi != null)
+                    restApi.Stop();
 
                 Console.WriteLine("Reflectors stopped.");
             }
