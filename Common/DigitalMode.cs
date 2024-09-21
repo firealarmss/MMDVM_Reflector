@@ -25,6 +25,7 @@ namespace Common
         NXDN = 0x00,
         P25 = 0x01,
         YSF = 0x02,
+        M17 = 0x03,
         UNKOWN = 0xFF
     }
 }

@@ -9,6 +9,7 @@ namespace M17_Reflector
     public class Peer
     {
         public IPEndPoint Address { get; }
+        public string Callsign { get; set; }
         public string Module { get; set; }
         public bool IsTransmitting { get; private set; }
         public byte[] StreamId { get; private set; }

@@ -1,5 +1,6 @@
 ﻿using Common;
 using Common.Api;
+using Newtonsoft.Json;
 using Serilog;
 using System.Collections.Concurrent;
 using System.Net;
@@ -133,11 +134,13 @@ namespace M17_Reflector
             if (!_config.Acl || (moduleAuthorized && userAuthorized))
             {
                 var peer = new Peer(ip, _logger);
+                peer.Callsign = srcId.Substring(0, 6);
                 peer.Module = Encoding.ASCII.GetString(packet, 10, 1);
 
                 _peers.TryAdd(ip.ToString(), peer);
                 _protocol.SendPacket(CreateAckPacket(), ip);
 
+                _reporter.Send(new Report {Mode = DigitalMode.M17, Type = Common.Api.Type.CONNECTION, Extra = PreparePeersListForReport(_peers) });
                 _logger.Information($"M17: Added peer: {peer.Address}");
             }
             else
@@ -157,6 +160,7 @@ namespace M17_Reflector
             _logger.Information($"M17: NET_DISC from {ip}");
             if (_peers.TryRemove(ip.ToString(), out var peer))
             {
+                _reporter.Send(new Report { Mode = DigitalMode.M17, Type = Common.Api.Type.CONNECTION, Extra = PreparePeersListForReport(_peers) });
                 _logger.Information($"M17: Removed peer: {peer.Address}");
             } else
             {
@@ -202,7 +206,11 @@ namespace M17_Reflector
                 string module = dstid.Substring(8, 1);
 
                 if (!peer.IsTransmitting)
+                {
                     _logger.Information($"M17: Voice transmission, streamid: {BitConverter.ToString(streamid).Replace("-", string.Empty)} callsign: {srcid.Substring(0, 6)}, destination: {dstid}, from {ip}");
+                    _reporter.Send(0, 0, srcid.Substring(0, 6), DigitalMode.M17, Common.Api.Type.CALL_START, string.Empty);
+                    _reporter.Send(new Report { Mode = DigitalMode.M17, Type = Common.Api.Type.CONNECTION, Extra = PreparePeersListForReport(_peers) });
+                }
 
                 peer.StartTransmission(streamid);
 
@@ -256,6 +264,19 @@ namespace M17_Reflector
                     }
                 }
             }
+        }
+
+        private string PreparePeersListForReport(ConcurrentDictionary<string, Peer> peers)
+        {
+            var peersInfo = peers.Select(peer => new
+            {
+                CallSign = peer.Value.Callsign.Trim(),
+                Module = peer.Value.Module,
+                Address = peer.Key.ToString(),
+                Transmitting = peer.Value.IsTransmitting
+            });
+
+            return JsonConvert.SerializeObject(peersInfo, Formatting.Indented);
         }
 
         private byte[] CreateAckPacket()
