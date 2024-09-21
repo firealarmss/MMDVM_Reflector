@@ -77,6 +77,41 @@ namespace P25_Reflector
             _cancellationTokenSource.Cancel();
         }
 
+        public bool Disconnect(string callsign)
+        {
+            _logger.Information($"P25: Attempting to disconnect callsign {callsign}");
+
+            var peerToRemove = _peers.FirstOrDefault(p => p.CallSign.Trim().Equals(callsign, StringComparison.OrdinalIgnoreCase));
+
+            if (peerToRemove != null)
+            {
+                if (_peers.Remove(peerToRemove))
+                {
+                    _reporter.Send(new Report { Mode = DigitalMode.P25, Type = Common.Api.Type.CONNECTION, Extra = PreparePeersListForReport(_peers) });
+
+                    _logger.Information($"P25: Successfully disconnected {peerToRemove.CallSign} from {peerToRemove.Address}");
+
+                    return true;
+                }
+                else
+                {
+                    _logger.Error($"P25: Failed to remove repeater {callsign.Trim()} from repeaters list.");
+                    return false;
+                }
+            }
+            else
+            {
+                _logger.Warning($"P25: Callsign {callsign.Trim()} not found among connected repeaters.");
+                return false;
+            }
+        }
+
+        public bool Block(string callsign)
+        {
+            Console.WriteLine($"P25: Block {callsign}");
+            return false;
+        }
+
         private async Task ReceiveLoop(CancellationToken token)
         {
             while (!token.IsCancellationRequested)

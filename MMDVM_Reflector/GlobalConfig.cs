@@ -28,6 +28,7 @@ namespace MMDVM_Reflector
     public class GlobalConfig
     {
         public ReporterConfig Reporter { get; set; }
+        public RestApiConfig Rest { get; set; }
         public ReflectorConfig Reflectors { get; set; }
         public LoggerConfig Logger { get; set; }
         public string AclPath { get; set; }
@@ -57,6 +58,14 @@ namespace MMDVM_Reflector
         public NXDN_Reflector.Config Nxdn { get; set; }
         public YSF_Reflector.Config Ysf { get; set; }
         public M17_Reflector.Config M17 { get; set; }
+    }
+
+    public class RestApiConfig
+    {
+        public string Ip { get; set; }
+        public int Port { get; set; }
+        public string Password { get; set; }
+        public bool Enabled { get; set; }
     }
 
     public class ReporterConfig

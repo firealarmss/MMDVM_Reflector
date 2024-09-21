@@ -20,6 +20,7 @@
 
 using Common;
 using Common.Api;
+using Common.Api.REST;
 using M17_Reflector;
 using NXDN_Reflector;
 using P25_Reflector;
@@ -102,6 +103,14 @@ namespace MMDVM_Reflector
                 {
                     m17Reflector = new M17Reflector(config.Reflectors.M17, callsignAcl, reporter, Log.Logger);
                     m17Reflector.Run();
+                }
+
+                if (config.Rest != null && config.Rest.Enabled)
+                {
+                    var reflectorContext = new ReflectorContext(p25Reflector, ysfReflector, nxdnReflector, m17Reflector);
+                    var restApi = new RestApi(config.Rest.Password, reflectorContext, Log.Logger, $"http://{config.Rest.Ip}:{config.Rest.Port}/");
+
+                    restApi.Start();
                 }
             }
 

@@ -60,6 +60,43 @@ namespace M17_Reflector
             _protocol.Close();
         }
 
+        public bool Disconnect(string callsign)
+        {
+            _logger.Information($"M17: Attempting to disconnect callsign {callsign}");
+
+            var peerToRemove = _peers.Values.FirstOrDefault(p => p.Callsign.Equals(callsign, StringComparison.OrdinalIgnoreCase));
+
+            if (peerToRemove != null)
+            {
+                _protocol.SendPacket(CreateNackPacket(), peerToRemove.Address);
+
+                if (_peers.TryRemove(peerToRemove.Address.ToString(), out var removedPeer))
+                {
+                    _reporter.Send(new Report { Mode = DigitalMode.M17, Type = Common.Api.Type.CONNECTION, Extra = PreparePeersListForReport(_peers) });
+
+                    _logger.Information($"M17: Successfully disconnected {removedPeer.Callsign} from {removedPeer.Address}");
+
+                    return true;
+                }
+                else
+                {
+                    _logger.Error($"M17: Failed to remove peer {callsign} from peers list.");
+                    return false;
+                }
+            }
+            else
+            {
+                _logger.Warning($"M17: Callsign {callsign} not found among connected peers.");
+                return false;
+            }
+        }
+
+        public bool Block(string callsign)
+        {
+            Console.WriteLine($"M17: Block {callsign}");
+            return false;
+        }
+
         private async Task MainLoop()
         {
             while (!_cts.Token.IsCancellationRequested)

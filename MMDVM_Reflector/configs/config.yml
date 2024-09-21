@@ -8,6 +8,12 @@ reporter:
     port: 3000
     enabled: false
 
+rest:
+    ip: 127.0.0.1
+    port: 8080
+    password: "password"
+    enabled: true
+
 reflectors:
   p25:
     enabled: true

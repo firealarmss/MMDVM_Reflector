@@ -77,6 +77,41 @@ namespace YSF_Reflector
             _cancellationTokenSource.Cancel();
         }
 
+        public bool Disconnect(string callsign)
+        {
+            _logger.Information($"YSF: Attempting to disconnect callsign {callsign}");
+
+            var peerToRemove = _repeaters.FirstOrDefault(p => p.CallSign.Equals(callsign, StringComparison.OrdinalIgnoreCase));
+
+            if (peerToRemove != null)
+            {
+                if (_repeaters.Remove(peerToRemove))
+                {
+                    _reporter.Send(new Report { Mode = DigitalMode.YSF, Type = Common.Api.Type.CONNECTION, Extra = PreparePeersListForReport(_repeaters) });
+
+                    _logger.Information($"YSF: Successfully disconnected {peerToRemove.CallSign} from {peerToRemove.Address}");
+
+                    return true;
+                }
+                else
+                {
+                    _logger.Error($"YSF: Failed to remove repeater {callsign} from repeaters list.");
+                    return false;
+                }
+            }
+            else
+            {
+                _logger.Warning($"YSF: Callsign {callsign} not found among connected repeaters.");
+                return false;
+            }
+        }
+
+        public bool Block(string callsign)
+        {
+            Console.WriteLine($"YSF: Block {callsign}");
+            return false;
+        }
+
         private async Task ReceiveLoop(CancellationToken token)
         {
             while (!token.IsCancellationRequested)

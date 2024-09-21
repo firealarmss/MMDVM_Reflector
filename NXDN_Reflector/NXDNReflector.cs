@@ -76,6 +76,41 @@ namespace NXDN_Reflector
             _cancellationTokenSource.Cancel();
         }
 
+        public bool Disconnect(string callsign)
+        {
+            _logger.Information($"NXDN: Attempting to disconnect callsign {callsign}");
+
+            var peerToRemove = _repeaters.FirstOrDefault(p => p.CallSign.Equals(callsign, StringComparison.OrdinalIgnoreCase));
+
+            if (peerToRemove != null)
+            {
+                if (_repeaters.Remove(peerToRemove))
+                {
+                    _reporter.Send(new Report { Mode = DigitalMode.NXDN, Type = Common.Api.Type.CONNECTION, Extra = PreparePeersListForReport(_repeaters) });
+
+                    _logger.Information($"NXDN: Successfully disconnected {peerToRemove.CallSign} from {peerToRemove.Address}");
+
+                    return true;
+                }
+                else
+                {
+                    _logger.Error($"NXDN: Failed to remove repeater {callsign} from repeaters list.");
+                    return false;
+                }
+            }
+            else
+            {
+                _logger.Warning($"NXDN: Callsign {callsign} not found among connected repeaters.");
+                return false;
+            }
+        }
+
+        public bool Block(string callsign)
+        {
+            Console.WriteLine($"NXDN: Block {callsign}");
+            return false;
+        }
+
         private async Task ReceiveLoop(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
