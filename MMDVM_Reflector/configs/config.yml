@@ -1,3 +1,5 @@
+aclPath: "./whitelist.yml"
+
 logger:
     path: "./logs/"
 
