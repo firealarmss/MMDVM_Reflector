@@ -11,22 +11,26 @@ reporter:
 reflectors:
   p25:
     enabled: true
+    acl: false
     networkPort: 32010
     networkDebug: false
 
   nxdn:
     enabled: true
+    acl: false
     networkPort: 32020
     networkDebug: false
     targetGroup: 1
 
   ysf:
     enabled: true
+    acl: false
     networkPort: 32030
-    networkDebug: false
+    networkDebug: true
 
   m17:
     enabled: true
+    acl: false
     networkPort: 12345
     reflector: "001" # This is the three characters after "M17-"; for example if you are M17-ABC the value for this config would be ABC
     modules:

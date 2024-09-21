@@ -103,7 +103,7 @@ namespace NXDN_Reflector
                     {
                         repeater = new NXDNRepeater(senderAddress, buffer);
 
-                        if (_config.Acl || _acl.CheckCallsignAcl(repeater.CallSign))
+                        if (!_config.Acl || _acl.CheckCallsignAcl(repeater.CallSign))
                         {
                             _repeaters.Add(repeater);
                             _reporter.Send(new Report { Mode = Common.DigitalMode.NXDN, Type = Common.Api.Type.CONNECTION, Extra = PreparePeersListForReport(_repeaters), DateTime = DateTime.Now });

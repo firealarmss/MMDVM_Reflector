@@ -112,7 +112,7 @@ namespace P25_Reflector
                     {
                         repeater = new P25Peer(senderAddress, buffer);
 
-                        if (_acl.CheckCallsignAcl(repeater.CallSign.Trim()) && _config.Acl)
+                        if (!_config.Acl || _acl.CheckCallsignAcl(repeater.CallSign.Trim()))
                         {
                             _peers.Add(repeater);
 
