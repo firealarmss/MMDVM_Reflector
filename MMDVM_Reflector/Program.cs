@@ -18,6 +18,7 @@
 * 
 */
 
+using Common;
 using Common.Api;
 using M17_Reflector;
 using NXDN_Reflector;
@@ -49,9 +50,12 @@ namespace MMDVM_Reflector
             }
 
             GlobalConfig config;
+            CallsignAcl callsignAcl;
+
             try
             {
                 config = GlobalConfig.Load(configFilePath);
+                callsignAcl = CallsignAcl.Load(config.AclPath);
             }
             catch (Exception ex)
             {
@@ -78,25 +82,25 @@ namespace MMDVM_Reflector
             {
                 if (config.Reflectors.P25.Enabled)
                 {
-                    p25Reflector = new P25Reflector(config.Reflectors.P25, reporter, Log.Logger);
+                    p25Reflector = new P25Reflector(config.Reflectors.P25, callsignAcl, reporter, Log.Logger);
                     p25Reflector.Run();
                 }
 
                 if (config.Reflectors.Ysf.Enabled)
                 {
-                    ysfReflector = new YSFReflector(config.Reflectors.Ysf, reporter, Log.Logger);
+                    ysfReflector = new YSFReflector(config.Reflectors.Ysf, callsignAcl, reporter, Log.Logger);
                     ysfReflector.Run();
                 }
 
                 if (config.Reflectors.Nxdn.Enabled)
                 {
-                    nxdnReflector = new NXDNReflector(config.Reflectors.Nxdn, reporter, Log.Logger);
+                    nxdnReflector = new NXDNReflector(config.Reflectors.Nxdn, callsignAcl, reporter, Log.Logger);
                     nxdnReflector.Run();
                 }
 
                 if (config.Reflectors.M17.Enabled)
                 {
-                    m17Reflector = new M17Reflector(config.Reflectors.M17, reporter, Log.Logger);
+                    m17Reflector = new M17Reflector(config.Reflectors.M17, callsignAcl, reporter, Log.Logger);
                     m17Reflector.Run();
                 }
             }

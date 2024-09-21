@@ -25,6 +25,7 @@ namespace YSF_Reflector
         public Config() { /* stub */ }
 
         public bool Enabled { get; set; }
+        public bool Acl { get; set; }
         public int NetworkPort { get; set; }
         public bool NetworkDebug { get; set; }
     }

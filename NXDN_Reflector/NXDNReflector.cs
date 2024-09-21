@@ -18,6 +18,7 @@
 * 
 */
 
+using Common;
 using Common.Api;
 using Newtonsoft.Json;
 using Serilog;
@@ -32,6 +33,7 @@ namespace NXDN_Reflector
         public static string version = "01.00.00";
 
         private Config _config;
+        private CallsignAcl _acl;
         private Reporter _reporter;
         private ILogger _logger;
 
@@ -40,9 +42,10 @@ namespace NXDN_Reflector
 
         private CancellationTokenSource _cancellationTokenSource;
 
-        public NXDNReflector(Config config, Reporter reporter, ILogger logger)
+        public NXDNReflector(Config config, CallsignAcl callsignAcl, Reporter reporter, ILogger logger)
         {
             _config = config;
+            _acl = callsignAcl;
             _reporter = reporter;
             _logger = logger;
 
@@ -99,9 +102,16 @@ namespace NXDN_Reflector
                     if (repeater == null)
                     {
                         repeater = new NXDNRepeater(senderAddress, buffer);
-                        _repeaters.Add(repeater);
-                        _reporter.Send(new Report { Mode = Common.DigitalMode.NXDN, Type = Common.Api.Type.CONNECTION, Extra = PreparePeersListForReport(_repeaters), DateTime = DateTime.Now });
-                        _logger.Information($"NXDN: Added repeater: {repeater.CallSign} from {senderAddress}");
+
+                        if (_config.Acl || _acl.CheckCallsignAcl(repeater.CallSign))
+                        {
+                            _repeaters.Add(repeater);
+                            _reporter.Send(new Report { Mode = Common.DigitalMode.NXDN, Type = Common.Api.Type.CONNECTION, Extra = PreparePeersListForReport(_repeaters), DateTime = DateTime.Now });
+                            _logger.Information($"NXDN: Added repeater: {repeater.CallSign} from {senderAddress}");
+                        } else
+                        {
+                            _logger.Information($"NXDN: Connection ACL Rejection {senderAddress}");
+                        }
                     }
 
                     _networkManager.SendPollResponse(buffer, senderAddress);

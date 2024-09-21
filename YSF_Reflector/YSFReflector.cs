@@ -18,6 +18,7 @@
 * 
 */
 
+using Common;
 using Common.Api;
 using Newtonsoft.Json;
 using Serilog;
@@ -42,7 +43,7 @@ namespace YSF_Reflector
 
         private CancellationTokenSource _cancellationTokenSource;
 
-        public YSFReflector(Config config, Reporter reporter, ILogger logger)
+        public YSFReflector(Config config, CallsignAcl callsignAcl, Reporter reporter, ILogger logger)
         {
             _config = config;
             _reporter = reporter;

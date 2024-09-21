@@ -67,7 +67,7 @@ namespace M17_Reflector
             _transmissionCts = new CancellationTokenSource();
             var token = _transmissionCts.Token;
 
-            Task.Delay(1000, token).ContinueWith(t =>
+            Task.Delay(500, token).ContinueWith(t =>
             {
                 if (!t.IsCanceled)
                 {

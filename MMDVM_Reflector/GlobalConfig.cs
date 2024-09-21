@@ -30,6 +30,7 @@ namespace MMDVM_Reflector
         public ReporterConfig Reporter { get; set; }
         public ReflectorConfig Reflectors { get; set; }
         public LoggerConfig Logger { get; set; }
+        public string AclPath { get; set; }
         
 
         public static GlobalConfig Load(string configPath)

@@ -19,12 +19,14 @@ namespace M17_Reflector
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
         private Config _config;
+        private CallsignAcl _callsignAcl;
         private Reporter _reporter;
         private readonly ILogger _logger;
 
-        public M17Reflector(Config config, Reporter reporter, ILogger logger)
+        public M17Reflector(Config config, CallsignAcl callsignAcl, Reporter reporter, ILogger logger)
         {
             _config = config;
+            _callsignAcl = callsignAcl;
             _reporter = reporter;
             _logger = logger;
 
@@ -102,7 +104,9 @@ namespace M17_Reflector
 
         private void HandleConnect(byte[] packet, IPEndPoint ip)
         {
-            bool isAuthorized = true;
+            bool moduleAuthorized = true;
+            bool userAuthorized = true;
+
             byte[] srcCallsign = new byte[6];
             byte[] dstCallsign = new byte[6];
 
@@ -123,7 +127,10 @@ namespace M17_Reflector
                 _logger.Information($"M17: NET_CONN source: {srcId.Substring(0, 6)}, module: {Encoding.ASCII.GetString(packet, 10, 1)}, IP: {ip}");
             }
 
-            if (isAuthorized)
+            moduleAuthorized = _config.CheckModule(Encoding.ASCII.GetString(packet, 10, 1));
+            userAuthorized = _callsignAcl.CheckCallsignAcl(srcId.Substring(0, 6));
+
+            if (!_config.Acl || (moduleAuthorized && userAuthorized))
             {
                 var peer = new Peer(ip, _logger);
                 peer.Module = Encoding.ASCII.GetString(packet, 10, 1);
@@ -135,7 +142,12 @@ namespace M17_Reflector
             }
             else
             {
-                _logger.Warning($"M17: NET_NACK address: {ip}, Reason: Unauthorized");
+                if (!moduleAuthorized)
+                    _logger.Warning($"M17: NET_NACK address: {ip}, Reason: Module not enabled");
+
+                if (!userAuthorized)
+                    _logger.Warning($"M17: NET_NACK address: {ip}, Reason: ACL Rejction");
+
                 _protocol.SendPacket(CreateNackPacket(), ip);
             }
         }

@@ -33,6 +33,7 @@ namespace P25_Reflector
         public static string version = "01.00.00";
 
         private Config _config;
+        private CallsignAcl _acl;
         private Reporter _reporter;
         private ILogger _logger;
 
@@ -41,9 +42,10 @@ namespace P25_Reflector
 
         private CancellationTokenSource _cancellationTokenSource;
 
-        public P25Reflector(Config config, Reporter reporter, ILogger logger)
+        public P25Reflector(Config config, CallsignAcl callsignAcl, Reporter reporter, ILogger logger)
         {
             _config = config;
+            _acl = callsignAcl;
             _reporter = reporter;
             _logger = logger;
 
@@ -109,14 +111,22 @@ namespace P25_Reflector
                     if (repeater == null)
                     {
                         repeater = new P25Peer(senderAddress, buffer);
-                        _peers.Add(repeater);
 
-                        _reporter.Send(0, 0, string.Empty, DigitalMode.P25, Common.Api.Type.CONNECTION, PreparePeersListForReport(_peers));
-                        _logger.Information($"P25: New connection: {repeater.CallSign.Trim()}; Address: {senderAddress}");
+                        if (_acl.CheckCallsignAcl(repeater.CallSign.Trim()) && _config.Acl)
+                        {
+                            _peers.Add(repeater);
+
+                            _reporter.Send(0, 0, string.Empty, DigitalMode.P25, Common.Api.Type.CONNECTION, PreparePeersListForReport(_peers));
+                            _logger.Information($"P25: New connection: {repeater.CallSign.Trim()}; Address: {senderAddress}");
+                        } else
+                        {
+                            _logger.Warning($"P25: NACK: {repeater.CallSign.Trim()}; Address: {senderAddress}; Reason: ACL Rejection");
+                        }
                     }
                     else
                     {
-                        repeater.Refresh();
+                        if (_acl.CheckCallsignAcl(repeater.CallSign.Trim()) && _config.Acl)
+                            repeater.Refresh();
                     }
 
                     _networkManager.SendData(buffer, senderAddress);
@@ -202,8 +212,11 @@ namespace P25_Reflector
                 default:
                     if (repeater != null)
                     {
-                        repeater.Refresh();
-                        RelayToAllRepeaters(buffer, senderAddress);
+                        if (_acl.CheckCallsignAcl(repeater.CallSign.Trim()) && _config.Acl)
+                        {
+                            repeater.Refresh();
+                            RelayToAllRepeaters(buffer, senderAddress);
+                        }
                     }
                     break;
             }
