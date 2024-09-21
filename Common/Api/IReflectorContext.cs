@@ -11,5 +11,7 @@ namespace Common.Api
         bool DisconnectCallsign(string reflectorType, string callsign);
 
         bool BlockCallsign(string reflectorType, string callsign);
+
+        bool UnBlockCallsign(string reflectorType, string callsign);
     }
 }

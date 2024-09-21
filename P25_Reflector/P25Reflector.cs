@@ -108,8 +108,61 @@ namespace P25_Reflector
 
         public bool Block(string callsign)
         {
-            Console.WriteLine($"P25: Block {callsign}");
-            return false;
+            var entry = _acl.Entries.Find(e => e.Callsign == callsign);
+
+            Disconnect(callsign);
+
+            if (entry != null)
+            {
+                entry.Allowed = false;
+                Console.WriteLine($"P25: Blocked existing callsign {callsign}");
+            }
+            else
+            {
+                entry = new CallsignEntry { Callsign = callsign, Allowed = false };
+                _acl.Entries.Add(entry);
+                Console.WriteLine($"P25: Blocked new callsign {callsign}");
+            }
+
+            try
+            {
+                _acl.Save();
+                Console.WriteLine("ACL updated and saved successfully.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to save ACL: {ex.Message}");
+                return false;
+            }
+        }
+
+        public bool UnBlock(string callsign)
+        {
+            var entry = _acl.Entries.Find(e => e.Callsign == callsign);
+
+            if (entry != null)
+            {
+                entry.Allowed = true;
+                _logger.Information($"P25: Unblocked callsign {callsign}");
+            }
+            else
+            {
+                _logger.Warning($"P25: Callsign {callsign} not found in ACL. Nothing to unblock.");
+                return false;
+            }
+
+            try
+            {
+                _acl.Save();
+                _logger.Information("ACL updated and saved successfully.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Failed to save ACL: {ex.Message}");
+                return false;
+            }
         }
 
         private async Task ReceiveLoop(CancellationToken token)

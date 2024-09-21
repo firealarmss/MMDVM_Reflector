@@ -31,6 +31,7 @@ namespace Common.Api.REST.Routes
                 {
                     "disconnect" => _reflectorContext.DisconnectCallsign(reflectorType, callsign),
                     "block" => _reflectorContext.BlockCallsign(reflectorType, callsign),
+                    "unblock" => _reflectorContext.UnBlockCallsign(reflectorType, callsign),
                     _ => false
                 };
 

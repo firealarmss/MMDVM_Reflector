@@ -54,5 +54,22 @@ namespace MMDVM_Reflector
                     return false;
             }
         }
+
+        public bool UnBlockCallsign(string reflectorType, string callsign)
+        {
+            switch (reflectorType.ToLower())
+            {
+                case "p25":
+                    return P25Reflector?.UnBlock(callsign) ?? false;
+                case "ysf":
+                    return YSFReflector?.UnBlock(callsign) ?? false;
+                case "nxdn":
+                    return NXDNReflector?.UnBlock(callsign) ?? false;
+                case "m17":
+                    return M17Reflector?.UnBlock(callsign) ?? false;
+                default:
+                    return false;
+            }
+        }
     }
 }

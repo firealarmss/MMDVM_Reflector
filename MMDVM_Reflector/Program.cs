@@ -56,7 +56,8 @@ namespace MMDVM_Reflector
             try
             {
                 config = GlobalConfig.Load(configFilePath);
-                callsignAcl = CallsignAcl.Load(config.AclPath);
+                callsignAcl = new CallsignAcl(config.AclPath);
+                callsignAcl.Load();
             }
             catch (Exception ex)
             {

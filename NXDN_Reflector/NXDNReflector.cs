@@ -111,6 +111,34 @@ namespace NXDN_Reflector
             return false;
         }
 
+        public bool UnBlock(string callsign)
+        {
+            var entry = _acl.Entries.Find(e => e.Callsign == callsign);
+
+            if (entry != null)
+            {
+                entry.Allowed = true;
+                _logger.Information($"NXDN: Unblocked callsign {callsign}");
+            }
+            else
+            {
+                _logger.Warning($"NXDN: Callsign {callsign} not found in ACL. Nothing to unblock.");
+                return false;
+            }
+
+            try
+            {
+                _acl.Save();
+                _logger.Information("NXDN: ACL updated and saved successfully.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"NXDN: Failed to save ACL: {ex.Message}");
+                return false;
+            }
+        }
+
         private async Task ReceiveLoop(CancellationToken token)
         {
             while (!token.IsCancellationRequested)

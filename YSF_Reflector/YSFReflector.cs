@@ -112,6 +112,12 @@ namespace YSF_Reflector
             return false;
         }
 
+        public bool UnBlock(string callsign)
+        {
+            Console.WriteLine($"YSF: Unblock {callsign}");
+            return false;
+        }
+
         private async Task ReceiveLoop(CancellationToken token)
         {
             while (!token.IsCancellationRequested)

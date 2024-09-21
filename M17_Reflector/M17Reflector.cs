@@ -97,6 +97,34 @@ namespace M17_Reflector
             return false;
         }
 
+        public bool UnBlock(string callsign)
+        {
+            var entry = _callsignAcl.Entries.Find(e => e.Callsign == callsign);
+
+            if (entry != null)
+            {
+                entry.Allowed = true;
+                _logger.Information($"M17: Unblocked callsign {callsign}");
+            }
+            else
+            {
+                _logger.Warning($"M17: Callsign {callsign} not found in ACL. Nothing to unblock.");
+                return false;
+            }
+
+            try
+            {
+                _callsignAcl.Save();
+                _logger.Information("M17: ACL updated and saved successfully.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"M17: Failed to save ACL: {ex.Message}");
+                return false;
+            }
+        }
+
         private async Task MainLoop()
         {
             while (!_cts.Token.IsCancellationRequested)
