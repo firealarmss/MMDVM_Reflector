@@ -122,9 +122,10 @@ namespace M17_Reflector
             {
                 _logger.Information($"M17: NET_CONN source: {srcId.Substring(0, 6)}, module: {Encoding.ASCII.GetString(packet, 10, 1)}, IP: {ip}");
             }
+
             if (isAuthorized)
             {
-                var peer = new Peer(ip);
+                var peer = new Peer(ip, _logger);
                 peer.Module = Encoding.ASCII.GetString(packet, 10, 1);
 
                 _peers.TryAdd(ip.ToString(), peer);
@@ -147,7 +148,7 @@ namespace M17_Reflector
                 _logger.Information($"M17: Removed peer: {peer.Address}");
             } else
             {
-                _logger.Warning($"M17: NET_NACK address: {ip}, Reason: Unauthorized");
+                _logger.Warning($"M17: NET_NACK address: {ip}, Reason: Peer not connected");
                 _protocol.SendPacket(CreateNackPacket(), ip);
             }
         }
@@ -163,7 +164,7 @@ namespace M17_Reflector
                 //Console.WriteLine($"Peer {peer.Address} PING.");
             } else
             {
-                _logger.Warning($"M17: NET_NACK address: {ip}, Reason: Unauthorized");
+                _logger.Warning($"M17: NET_NACK address: {ip}, Reason: Peer not connected");
                 _protocol.SendPacket(CreateNackPacket(), ip);
             }
         }
@@ -188,18 +189,19 @@ namespace M17_Reflector
                 string reflector = dstid.Substring(4, 3);
                 string module = dstid.Substring(8, 1);
 
-                peer.StreamId = streamid;
+                if (!peer.IsTransmitting)
+                    _logger.Information($"M17: Voice transmission, streamid: {BitConverter.ToString(streamid).Replace("-", string.Empty)} callsign: {srcid.Substring(0, 6)}, destination: {dstid}, from {ip}");
+
+                peer.StartTransmission(streamid);
 
                 if (reflector != _config.Reflector)
                     _protocol.SendPacket(CreateNackPacket(), ip);
 
                 BroadCastPacket(packet, ip, module);
-
-                _logger.Information($"M17: Voice transmission, streamid: {BitConverter.ToString(streamid).Replace("-", string.Empty)} callsign: {srcid.Substring(0, 6)}, destination: {dstid}, from {ip}");
             }
             else
             {
-                _logger.Warning($"M17: NET_NACK address: {ip}, Reason: Unauthorized");
+                _logger.Warning($"M17: NET_NACK address: {ip}, Reason: Peer not connected");
                 _protocol.SendPacket(CreateNackPacket(), ip);
             }
         }
