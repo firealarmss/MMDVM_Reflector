@@ -229,10 +229,6 @@ namespace P25_Reflector
                     }
                     break;
 
-                case 0x62:
-                case 0x63:
-                    break;
-
                 case 0x64:
                     if (repeater == null) return;
 
@@ -268,21 +264,6 @@ namespace P25_Reflector
                     }
                     break;
 
-                case 0x67:
-                case 0x68:
-                case 0x69:
-                case 0x6A:
-                case 0x6B:
-                case 0x6C:
-                case 0x6D:
-                case 0x6E:
-                case 0x6F:
-                case 0x70:
-                case 0x71:
-                case 0x72:
-                case 0x73:
-                    break;
-
                 case Opcode.NET_TERM:
                     if (repeater == null) return;
 
@@ -300,10 +281,15 @@ namespace P25_Reflector
                 default:
                     if (repeater != null)
                     {
-                        if (_acl.CheckCallsignAcl(repeater.CallSign.Trim()) && _config.Acl)
+                        if (_acl.CheckCallsignAcl(repeater.CallSign.Trim()) || !_config.Acl)
                         {
                             repeater.Refresh();
+                            Console.WriteLine("send");
                             RelayToAllRepeaters(buffer, senderAddress);
+                        } else
+                        {
+                            Console.WriteLine("ACL: " + _config.Acl);
+                            Console.WriteLine("CHECK: " + _acl.CheckCallsignAcl(repeater.CallSign.Trim()));
                         }
                     }
                     break;
