@@ -1,4 +1,4 @@
-# MMDVM Reflector: YSF, P25, and NXDN Reflector based on MMDVM Projects
+# MMDVM Reflector: YSF, P25, NXDN, and M17 Reflector based on MMDVM Projects
 
 [![License](https://img.shields.io/badge/License-GPLv3-blue?style=for-the-badge)](https://www.gnu.org/licenses/gpl-3.0)
 
