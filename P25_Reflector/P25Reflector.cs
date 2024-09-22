@@ -184,7 +184,7 @@ namespace P25_Reflector
             while (!token.IsCancellationRequested)
             {
                 CleanUpRepeaters();
-                await Task.Delay(9000, token);
+                await Task.Delay(_config.NetworkTimeout, token);
             }
         }
 
@@ -306,7 +306,7 @@ namespace P25_Reflector
         {
             foreach (var repeater in _peers)
             {
-                if (repeater.IsExpired())
+                if (repeater.IsExpired(_config.NetworkTimeout))
                 {
                     _logger.Warning($"P25: Removing peer {repeater.CallSign.Trim()} due to inactivity.");
                     _peers.Remove(repeater);

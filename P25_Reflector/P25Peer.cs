@@ -28,9 +28,9 @@ namespace P25_Reflector
             return Address.Equals(address);
         }
 
-        public bool IsExpired()
+        public bool IsExpired(int timeout)
         {
-            return (DateTime.Now - _lastActive).TotalSeconds > 10;
+            return (DateTime.Now - _lastActive).TotalSeconds > timeout;
         }
     }
 }

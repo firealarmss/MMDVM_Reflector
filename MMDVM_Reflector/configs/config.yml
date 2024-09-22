@@ -19,6 +19,7 @@ reflectors:
     enabled: true
     acl: false
     networkPort: 32010
+    networkTimeout: 3600000
     networkDebug: false
 
   nxdn:

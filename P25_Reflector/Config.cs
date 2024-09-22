@@ -27,6 +27,7 @@ namespace P25_Reflector
         public bool Enabled { get; set; }
         public bool Acl { get; set; }
         public int NetworkPort { get; set; }
+        public int NetworkTimeout {  get; set; }
         public bool NetworkDebug { get; set; }
     }
 }
