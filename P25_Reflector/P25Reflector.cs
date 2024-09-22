@@ -247,7 +247,7 @@ namespace P25_Reflector
                         repeater.State.DstId = (uint)((buffer[1] << 16) | (buffer[2] << 8) | buffer[3]);
                         repeater.State.Seen65 = true;
                     }
-                    goto default;
+                    goto default; // I hate this
 
                 case 0x66:
                     if (repeater == null) return;
@@ -276,7 +276,7 @@ namespace P25_Reflector
                     repeater.State.Reset();
 
                     _reporter.Send(0, 0, string.Empty, DigitalMode.P25, Common.Api.Type.CONNECTION, PreparePeersListForReport(_peers));
-                    break; // I hate this
+                    break;
 
                 default:
                     if (repeater != null)
