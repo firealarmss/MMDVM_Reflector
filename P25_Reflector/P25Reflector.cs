@@ -237,7 +237,7 @@ namespace P25_Reflector
                         repeater.State.Lcf = buffer[1];
                         repeater.State.Seen64 = true;
                     }
-                    break;
+                    goto default;
 
                 case 0x65:
                     if (repeater == null) return;
@@ -247,7 +247,7 @@ namespace P25_Reflector
                         repeater.State.DstId = (uint)((buffer[1] << 16) | (buffer[2] << 8) | buffer[3]);
                         repeater.State.Seen65 = true;
                     }
-                    break;
+                    goto default;
 
                 case 0x66:
                     if (repeater == null) return;
@@ -262,7 +262,7 @@ namespace P25_Reflector
 
                         _logger.Information($"P25: NET transmssion, srcId: {repeater.State.SrcId}, dstId: {repeater.State.DstId}, Peer: {repeater.CallSign.Trim()}");
                     }
-                    break;
+                    goto default; // I hate this
 
                 case Opcode.NET_TERM:
                     if (repeater == null) return;
@@ -276,7 +276,7 @@ namespace P25_Reflector
                     repeater.State.Reset();
 
                     _reporter.Send(0, 0, string.Empty, DigitalMode.P25, Common.Api.Type.CONNECTION, PreparePeersListForReport(_peers));
-                    break;
+                    break; // I hate this
 
                 default:
                     if (repeater != null)
