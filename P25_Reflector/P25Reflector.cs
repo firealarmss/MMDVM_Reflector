@@ -284,12 +284,7 @@ namespace P25_Reflector
                         if (_acl.CheckCallsignAcl(repeater.CallSign.Trim()) || !_config.Acl)
                         {
                             repeater.Refresh();
-                            Console.WriteLine("send");
                             RelayToAllRepeaters(buffer, senderAddress);
-                        } else
-                        {
-                            Console.WriteLine("ACL: " + _config.Acl);
-                            Console.WriteLine("CHECK: " + _acl.CheckCallsignAcl(repeater.CallSign.Trim()));
                         }
                     }
                     break;
