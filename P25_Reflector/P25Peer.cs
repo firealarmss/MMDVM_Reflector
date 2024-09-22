@@ -30,7 +30,7 @@ namespace P25_Reflector
 
         public bool IsExpired()
         {
-            return (DateTime.Now - _lastActive).TotalSeconds > 5;
+            return (DateTime.Now - _lastActive).TotalSeconds > 10;
         }
     }
 }

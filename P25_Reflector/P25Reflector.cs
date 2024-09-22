@@ -184,7 +184,7 @@ namespace P25_Reflector
             while (!token.IsCancellationRequested)
             {
                 CleanUpRepeaters();
-                await Task.Delay(5000, token);
+                await Task.Delay(9000, token);
             }
         }
 

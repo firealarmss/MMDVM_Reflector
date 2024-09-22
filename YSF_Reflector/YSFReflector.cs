@@ -137,7 +137,7 @@ namespace YSF_Reflector
             while (!token.IsCancellationRequested)
             {
                 CleanUpRepeaters();
-                await Task.Delay(5000, token);
+                await Task.Delay(15000, token);
             }
         }
 
