@@ -29,6 +29,9 @@ using System.Numerics;
 
 namespace YSF_Reflector
 {
+    /// <summary>
+    /// YSF Reflector class
+    /// </summary>
     public class YSFReflector
     {
         public const int YSF_CALLSIGN_LENGTH = 10;
@@ -43,6 +46,13 @@ namespace YSF_Reflector
 
         private CancellationTokenSource _cancellationTokenSource;
 
+        /// <summary>
+        /// Creates an instance of <see cref="YSFReflector"/>
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="callsignAcl"></param>
+        /// <param name="reporter"></param>
+        /// <param name="logger"></param>
         public YSFReflector(Config config, CallsignAcl callsignAcl, Reporter reporter, ILogger logger)
         {
             _config = config;
@@ -54,6 +64,9 @@ namespace YSF_Reflector
             _cancellationTokenSource = new CancellationTokenSource();
         }
 
+        /// <summary>
+        /// Fires up the reflector
+        /// </summary>
         public void Run()
         {
             _logger.Information("Starting YSFReflector");
@@ -72,11 +85,19 @@ namespace YSF_Reflector
             Task.Factory.StartNew(() => CleanupLoop(_cancellationTokenSource.Token), _cancellationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
+        /// <summary>
+        /// Gracefully stop the reflector instance
+        /// </summary>
         public void Stop()
         {
             _cancellationTokenSource.Cancel();
         }
 
+        /// <summary>
+        /// Helper to disconnect a current <see cref="YSFRepeater"/> based off its callsign
+        /// </summary>
+        /// <param name="callsign"></param>
+        /// <returns></returns>
         public bool Disconnect(string callsign)
         {
             _logger.Information($"YSF: Attempting to disconnect callsign {callsign}");
@@ -106,18 +127,33 @@ namespace YSF_Reflector
             }
         }
 
+        /// <summary>
+        /// Helper to block the specified callsign
+        /// </summary>
+        /// <param name="callsign"></param>
+        /// <returns></returns>
         public bool Block(string callsign)
         {
             Console.WriteLine($"YSF: Block {callsign}");
             return false;
         }
 
+        /// <summary>
+        /// Helper to un block the specified callsign
+        /// </summary>
+        /// <param name="callsign"></param>
+        /// <returns></returns>
         public bool UnBlock(string callsign)
         {
             Console.WriteLine($"YSF: Unblock {callsign}");
             return false;
         }
 
+        /// <summary>
+        /// Main loop to receive UDP data
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         private async Task ReceiveLoop(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
@@ -132,6 +168,11 @@ namespace YSF_Reflector
             }
         }
 
+        /// <summary>
+        /// Loop to detect an inactive <see cref="YSFRepeater"/> that did not properly tear down
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         private async Task CleanupLoop(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
@@ -141,6 +182,11 @@ namespace YSF_Reflector
             }
         }
 
+        /// <summary>
+        /// Callback to handle all incoming UDP data
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="senderAddress"></param>
         private void HandleIncomingData(byte[] buffer, IPEndPoint senderAddress)
         {
             YSFRepeater repeater = FindRepeater(senderAddress);
@@ -172,6 +218,12 @@ namespace YSF_Reflector
             }
         }
 
+        /// <summary>
+        /// Helper to parse YSF data
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="repeater"></param>
+        /// <param name="senderAddress"></param>
         private void HandleYSFData(byte[] buffer, YSFRepeater repeater, IPEndPoint senderAddress)
         {
             byte[] tag = new byte[YSF_CALLSIGN_LENGTH];
@@ -205,12 +257,22 @@ namespace YSF_Reflector
             RelayToAllRepeaters(buffer, senderAddress);
         }
 
+        /// <summary>
+        /// Helper to parse YSF callsign
+        /// </summary>
+        /// <param name="callsignBytes"></param>
+        /// <returns></returns>
         private string ParseCallsign(byte[] callsignBytes)
         {
             string callsign = System.Text.Encoding.ASCII.GetString(callsignBytes).Trim();
             return string.IsNullOrWhiteSpace(callsign) ? "?Unknown" : callsign;
         }
 
+        /// <summary>
+        /// Broadcast a message to all repeaters except ourself
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="senderAddress"></param>
         private void RelayToAllRepeaters(byte[] buffer, IPEndPoint senderAddress)
         {
             foreach (var repeater in _repeaters)
@@ -222,6 +284,11 @@ namespace YSF_Reflector
             }
         }
 
+        /// <summary>
+        /// Helper to make a JSON list of current <see cref="YSFRepeater"/>
+        /// </summary>
+        /// <param name="repeaters"></param>
+        /// <returns></returns>
         private string PreparePeersListForReport(List<YSFRepeater> repeaters)
         {
             var peersInfo = repeaters.Select(repeater => new
@@ -234,6 +301,9 @@ namespace YSF_Reflector
             return JsonConvert.SerializeObject(peersInfo, Formatting.Indented);
         }
 
+        /// <summary>
+        /// Helper to clean inactive repeaters
+        /// </summary>
         private void CleanUpRepeaters()
         {
             foreach (var repeater in _repeaters)
@@ -247,6 +317,11 @@ namespace YSF_Reflector
             }
         }
 
+        /// <summary>
+        /// Helper to find a <see cref="YSFRepeater"/> based on its <see cref="IPEndPoint"/>
+        /// </summary>
+        /// <param name="address"></param>
+        /// <returns></returns>
         private YSFRepeater FindRepeater(IPEndPoint address)
         {
             return _repeaters.Find(r => r.IsSameAddress(address));

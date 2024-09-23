@@ -22,6 +22,9 @@ using System.Net;
 
 namespace YSF_Reflector
 {
+    /// <summary>
+    /// YSF Repeater class
+    /// </summary>
     public class YSFRepeater
     {
         public IPEndPoint Address { get; private set; }
@@ -29,6 +32,11 @@ namespace YSF_Reflector
         private DateTime _lastActive;
         public bool IsTransmitting { get; private set; }
 
+        /// <summary>
+        /// Creates an instance of <see cref="YSFRepeater"/>
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="data"></param>
         public YSFRepeater(IPEndPoint address, byte[] data)
         {
             Address = address;
@@ -37,26 +45,44 @@ namespace YSF_Reflector
             IsTransmitting = false;
         }
 
+        /// <summary>
+        /// Refresh activity
+        /// </summary>
         public void Refresh()
         {
             _lastActive = DateTime.Now;
         }
 
+        /// <summary>
+        /// Helper to check if two address are equal
+        /// </summary>
+        /// <param name="address"></param>
+        /// <returns></returns>
         public bool IsSameAddress(IPEndPoint address)
         {
             return Address.Equals(address);
         }
 
+        /// <summary>
+        /// Helper to check if the repeater is no longer active
+        /// </summary>
+        /// <returns></returns>
         public bool IsExpired()
         {
             return (DateTime.Now - _lastActive).TotalSeconds > 15;
         }
 
+        /// <summary>
+        /// Helper to set the transmission state to true
+        /// </summary>
         public void StartTransmission()
         {
             IsTransmitting = true;
         }
 
+        /// <summary>
+        /// Helper to set the transmission state to false
+        /// </summary>
         public void EndTransmission()
         {
             IsTransmitting = false;

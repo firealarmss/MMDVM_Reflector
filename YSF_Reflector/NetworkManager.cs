@@ -25,18 +25,30 @@ using System.Net.Sockets;
 
 namespace YSF_Reflector
 {
+    /// <summary>
+    /// YSF Networking class
+    /// </summary>
     public class NetworkManager
     {
         private UdpClient _udpClient;
         private int _port;
         private bool _debug;
 
+        /// <summary>
+        /// Creates an instance of <see cref="NetworkManager"/>
+        /// </summary>
+        /// <param name="port"></param>
+        /// <param name="debug"></param>
         public NetworkManager(int port, bool debug)
         {
             _port = port;
             _debug = debug;
         }
 
+        /// <summary>
+        /// Opens a UDP connection on the specified port
+        /// </summary>
+        /// <returns></returns>
         public bool OpenConnection()
         {
             try
@@ -51,6 +63,10 @@ namespace YSF_Reflector
             }
         }
 
+        /// <summary>
+        /// Callback for UDP data received
+        /// </summary>
+        /// <returns></returns>
         public (byte[] data, IPEndPoint sender) ReceiveData()
         {
             IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
@@ -62,6 +78,11 @@ namespace YSF_Reflector
             return (data, remoteEndPoint);
         }
 
+        /// <summary>
+        /// Helper to send UDP data to a specified <see cref="IPEndPoint"/>
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="destination"></param>
         public void SendData(byte[] data, IPEndPoint destination)
         {
             _udpClient.Send(data, data.Length, destination);
@@ -71,6 +92,10 @@ namespace YSF_Reflector
             }
         }
 
+        /// <summary>
+        /// Helper to send a YSF poll response
+        /// </summary>
+        /// <param name="destination"></param>
         public void SendPollResponse(IPEndPoint destination)
         {
             byte[] buffer = new byte[14];

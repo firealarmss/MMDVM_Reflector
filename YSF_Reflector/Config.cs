@@ -20,13 +20,34 @@
 
 namespace YSF_Reflector
 {
+    /// <summary>
+    /// YSF Reflector Configuration class
+    /// </summary>
     public class Config
     {
+        /// <summary>
+        /// Creates an instance of <see cref="Config"/>
+        /// </summary>
         public Config() { /* stub */ }
 
+        /// <summary>
+        /// Flag indicating if this mode is enabled
+        /// </summary>
         public bool Enabled { get; set; }
+        
+        /// <summary>
+        /// Flag indicating if ACL is enabled for this mode 
+        /// </summary>
         public bool Acl { get; set; }
+
+        /// <summary>
+        /// Port for this mode to bind to
+        /// </summary>
         public int NetworkPort { get; set; }
+
+        /// <summary>
+        /// Flag indicating if debug mode is enabled for this mode
+        /// </summary>
         public bool NetworkDebug { get; set; }
     }
 }
