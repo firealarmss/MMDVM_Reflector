@@ -3,7 +3,7 @@ aclPath: "./acl.yml" # Full path to the Access Control file.
 logger:
     path: "./logs/" # Full path to send log files to.
 
-reporter: # Reporter API for sue with the https://github.com/firealarmss/MMDVM_Reflector_Monitor
+reporter: # Reporter API which MUST be enabled if using the dashboard found at https://github.com/firealarmss/MMDVM_Reflector_Monitor
     enabled: false # Enable or disable the reporter API
     ip: 127.0.0.1 # IP to send reports to
     port: 3000 # Port to send reports to
