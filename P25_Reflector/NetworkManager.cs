@@ -24,17 +24,29 @@ using Common;
 
 namespace P25_Reflector
 {
+    /// <summary>
+    /// P25 Networking class
+    /// </summary>
     public class NetworkManager
     {
         private UdpClient _udpClient;
         private bool _debug;
 
+        /// <summary>
+        /// Creates an instance of <see cref="NetworkManager"/>
+        /// </summary>
+        /// <param name="port"></param>
+        /// <param name="debug"></param>
         public NetworkManager(int port, bool debug)
         {
             _udpClient = new UdpClient(new IPEndPoint(IPAddress.Any, port));
             _debug = debug;
         }
 
+        /// <summary>
+        /// Opens a UDP connection on the specified port
+        /// </summary>
+        /// <returns></returns>
         public bool OpenConnection()
         {
             try
@@ -47,6 +59,10 @@ namespace P25_Reflector
             }
         }
 
+        /// <summary>
+        /// Callback for UDP data received
+        /// </summary>
+        /// <returns></returns>
         public (byte[] data, IPEndPoint sender) ReceiveData()
         {
             IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
@@ -58,6 +74,11 @@ namespace P25_Reflector
             return (data, remoteEndPoint);
         }
 
+        /// <summary>
+        /// Helper to send UDP data to a specified <see cref="IPEndPoint"/>
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="destination"></param>
         public void SendData(byte[] data, IPEndPoint destination)
         {
             _udpClient.Send(data, data.Length, destination);

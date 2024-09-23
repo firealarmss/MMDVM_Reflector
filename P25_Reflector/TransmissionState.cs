@@ -20,6 +20,9 @@
 
 namespace P25_Reflector
 {
+    /// <summary>
+    /// Class to keep track of p25 transmission state
+    /// </summary>
     public class TransmissionState
     {
         public bool Seen64 { get; set; }
@@ -29,11 +32,17 @@ namespace P25_Reflector
         public uint SrcId { get; set; }
         public uint DstId { get; set; }
 
+        /// <summary>
+        /// Creates an instance of <see cref="TransmissionState"/>
+        /// </summary>
         public TransmissionState()
         {
             Reset();
         }
 
+        /// <summary>
+        /// Helper to rest values
+        /// </summary>
         public void Reset()
         {
             Seen64 = false;

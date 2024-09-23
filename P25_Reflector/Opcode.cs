@@ -20,6 +20,9 @@
 
 namespace P25_Reflector
 {
+    /// <summary>
+    /// P25 Opcodes
+    /// </summary>
     public static class Opcode
     {
         public const byte NET_TAG_HEADER = 0x00;

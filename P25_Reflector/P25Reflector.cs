@@ -28,6 +28,9 @@ using System.Net;
 
 namespace P25_Reflector
 {
+    /// <summary>
+    /// P25 Reflector class
+    /// </summary>
     public class P25Reflector
     {
         public static string version = "01.00.00";
@@ -42,6 +45,13 @@ namespace P25_Reflector
 
         private CancellationTokenSource _cancellationTokenSource;
 
+        /// <summary>
+        /// Creates an instance of <see cref="P25Reflector"/>
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="callsignAcl"></param>
+        /// <param name="reporter"></param>
+        /// <param name="logger"></param>
         public P25Reflector(Config config, CallsignAcl callsignAcl, Reporter reporter, ILogger logger)
         {
             _config = config;
@@ -53,6 +63,9 @@ namespace P25_Reflector
             _cancellationTokenSource = new CancellationTokenSource();
         }
 
+        /// <summary>
+        /// Fires up the reflector
+        /// </summary>
         public void Run()
         {
             _logger.Information("Starting P25Reflector");
@@ -72,11 +85,19 @@ namespace P25_Reflector
             Task.Factory.StartNew(() => CleanupLoop(_cancellationTokenSource.Token), _cancellationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
+        /// <summary>
+        /// Gracefully stop the reflector instance
+        /// </summary>
         public void Stop()
         {
             _cancellationTokenSource.Cancel();
         }
 
+        /// <summary>
+        /// Helper to disconnect a current <see cref="P25Peer"/> based off its callsign
+        /// </summary>
+        /// <param name="callsign"></param>
+        /// <returns></returns>
         public bool Disconnect(string callsign)
         {
             _logger.Information($"P25: Attempting to disconnect callsign {callsign}");
@@ -106,6 +127,11 @@ namespace P25_Reflector
             }
         }
 
+        /// <summary>
+        /// Helper to block the specified callsign
+        /// </summary>
+        /// <param name="callsign"></param>
+        /// <returns></returns>
         public bool Block(string callsign)
         {
             var entry = _acl.Entries.Find(e => e.Callsign == callsign);
@@ -137,6 +163,11 @@ namespace P25_Reflector
             }
         }
 
+        /// <summary>
+        /// Helper to un block the specified callsign
+        /// </summary>
+        /// <param name="callsign"></param>
+        /// <returns></returns>
         public bool UnBlock(string callsign)
         {
             var entry = _acl.Entries.Find(e => e.Callsign == callsign);
@@ -165,6 +196,11 @@ namespace P25_Reflector
             }
         }
 
+        /// <summary>
+        /// Main loop to receive UDP data
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         private async Task ReceiveLoop(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
@@ -179,6 +215,11 @@ namespace P25_Reflector
             }
         }
 
+        /// <summary>
+        /// Loop to detect an inactive <see cref="P25Peer"/> that did not properly tear down
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         private async Task CleanupLoop(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
@@ -188,6 +229,11 @@ namespace P25_Reflector
             }
         }
 
+        /// <summary>
+        /// Callback to handle all incoming UDP data
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="senderAddress"></param>
         private void HandleIncomingData(byte[] buffer, IPEndPoint senderAddress)
         {
             P25Peer repeater = FindRepeater(senderAddress);
@@ -291,6 +337,12 @@ namespace P25_Reflector
             }
         }
 
+
+        /// <summary>
+        /// Broadcast a message to all repeaters except ourself
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="senderAddress"></param>
         private void RelayToAllRepeaters(byte[] buffer, IPEndPoint senderAddress)
         {
             foreach (var repeater in _peers)
@@ -302,6 +354,9 @@ namespace P25_Reflector
             }
         }
 
+        /// <summary>
+        /// Helper to clean inactive repeaters
+        /// </summary>
         private void CleanUpRepeaters()
         {
             foreach (var repeater in _peers)
@@ -317,6 +372,11 @@ namespace P25_Reflector
             }
         }
 
+        /// <summary>
+        /// Helper to make a JSON list of current <see cref="P25Peer"/>
+        /// </summary>
+        /// <param name="peers"></param>
+        /// <returns></returns>
         private string PreparePeersListForReport(List<P25Peer> peers)
         {
             var peersInfo = peers.Select(peer => new
@@ -337,6 +397,11 @@ namespace P25_Reflector
             return JsonConvert.SerializeObject(peersInfo, Formatting.Indented);
         }
 
+        /// <summary>
+        /// Helper to find a <see cref="P25Peer"/> based on its <see cref="IPEndPoint"/>
+        /// </summary>
+        /// <param name="address"></param>
+        /// <returns></returns>
         private P25Peer FindRepeater(IPEndPoint address)
         {
             return _peers.Find(r => r.IsSameAddress(address));
