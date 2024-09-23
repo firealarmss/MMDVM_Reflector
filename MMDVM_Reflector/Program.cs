@@ -32,8 +32,16 @@ using YSF_Reflector;
 
 namespace MMDVM_Reflector
 {
+    /// <summary>
+    /// Application entry point class
+    /// </summary>
     internal class Program
     {
+        /// <summary>
+        /// Application entry point
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
         static async Task Main(string[] args)
         {
             Reporter reporter = new Reporter();

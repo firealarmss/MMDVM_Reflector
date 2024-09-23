@@ -25,6 +25,9 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace MMDVM_Reflector
 {
+    /// <summary>
+    /// Global configuration object for YAML
+    /// </summary>
     public class GlobalConfig
     {
         public ReporterConfig Reporter { get; set; }
@@ -33,7 +36,11 @@ namespace MMDVM_Reflector
         public LoggerConfig Logger { get; set; }
         public string AclPath { get; set; }
         
-
+        /// <summary>
+        /// Load YAML config file
+        /// </summary>
+        /// <param name="configPath"></param>
+        /// <returns></returns>
         public static GlobalConfig Load(string configPath)
         {
             var deserializer = new DeserializerBuilder()
@@ -47,11 +54,17 @@ namespace MMDVM_Reflector
         }
     }
 
+    /// <summary>
+    /// Logger configuration
+    /// </summary>
     public class LoggerConfig
     {
         public string Path { get; set; }
     }
 
+    /// <summary>
+    /// Reflectors configuration
+    /// </summary>
     public class ReflectorConfig
     {
         public P25_Reflector.Config P25 { get; set; }
@@ -60,6 +73,9 @@ namespace MMDVM_Reflector
         public M17_Reflector.Config M17 { get; set; }
     }
 
+    /// <summary>
+    /// RESTful API configuration
+    /// </summary>
     public class RestApiConfig
     {
         public string Ip { get; set; }
@@ -68,6 +84,9 @@ namespace MMDVM_Reflector
         public bool Enabled { get; set; }
     }
 
+    /// <summary>
+    /// Reporter configuration
+    /// </summary>
     public class ReporterConfig
     {
         public string Ip { get; set; }
