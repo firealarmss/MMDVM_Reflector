@@ -6,8 +6,7 @@
 
 The script downloads dotnet for compiling, compiles the app, and creates a service file so it can run in the background.
 
- - `sudo apt update && sudo apt upgrade`
- - `sudo apt install git`
+ - `sudo apt update && sudo apt upgrade && sudo apt install git`
  - `cd /opt`
  - `sudo git clone https://github.com/firealarmss/MMDVM_Reflector`
  - `cd MMDVM_Reflector/debian`
