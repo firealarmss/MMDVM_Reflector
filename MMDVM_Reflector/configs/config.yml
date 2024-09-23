@@ -1,48 +1,48 @@
-aclPath: "./whitelist.yml"
+aclPath: "./acl.yml" # Full path to the Access Control file.
 
 logger:
-    path: "./logs/"
+    path: "./logs/" # Full path to send log files to.
 
-reporter:
-    ip: 127.0.0.1
-    port: 3000
-    enabled: false
+reporter: # Reporter API for sue with the https://github.com/firealarmss/MMDVM_Reflector_Monitor
+    enabled: false # Enable or disable the reporter API
+    ip: 127.0.0.1 # IP to send reports to
+    port: 3000 # Port to send reports to
 
-rest:
-    ip: 127.0.0.1
-    port: 8080
-    password: "password"
-    enabled: true
+rest: # REST API for future use.
+    enabled: false # Enable or disable the REST API server.
+    ip: 127.0.0.1 # IP to bind the server to.
+    port: 8080 # Port to bind the server to.
+    password: "password" # Password for REST authentication.
 
 reflectors:
   p25:
-    enabled: true
-    acl: false
-    networkPort: 32010
-    networkTimeout: 3600000
-    networkDebug: false
+    enabled: false # Enable or disable P25.
+    acl: false # Access Control enabled on this mode.
+    networkPort: 41000 # Port to bind the reflector to.
+    networkTimeout: 3600000 # Timeout for peer inactivity. (Default 1 hour)
+    networkDebug: false # Debug P25
 
   nxdn:
-    enabled: true
-    acl: false
-    networkPort: 32020
-    networkDebug: false
-    targetGroup: 1
+    enabled: false # Enable or disable NXDN.
+    acl: false # Access Control enabled on this mode.
+    networkPort: 41040 # Port to bind the reflector to.
+    networkDebug: false # Debug NXDN
+    targetGroup: 1 # Target group ID for NXDN
 
   ysf:
-    enabled: true
-    acl: false
-    networkPort: 32030
-    networkDebug: true
+    enabled: false # Enable or disable YSF.
+    acl: false # Access Control enabled on this mode.
+    networkPort: 42000 # Port to bind the reflector to.
+    networkDebug: false # Debug YSF
 
   m17:
-    enabled: true
-    acl: false
-    networkPort: 12345
+    enabled: false # Enable or disable M17.
+    acl: false # Access Control enabled on this mode.
+    networkPort: 17000 # Port to bind the reflector to.
     reflector: "001" # This is the three characters after "M17-"; for example if you are M17-ABC the value for this config would be ABC
-    modules:
+    modules: # Valid modules are A-Z. Add up to Z as you please. If they dont exist here, they are asusmed not allowed.
       - module: A
         enabled: true
       - module: B
         enabled: true
-    networkDebug: false
+    networkDebug: false # Debug M17
