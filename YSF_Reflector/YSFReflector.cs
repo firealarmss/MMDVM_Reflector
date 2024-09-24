@@ -43,7 +43,7 @@ namespace YSF_Reflector
         private ILogger _logger;
 
         private List<YSFRepeater> _repeaters;
-        private NetworkManager _networkManager;
+        private Network _networkManager;
 
         private CancellationTokenSource _cancellationTokenSource;
 
@@ -61,7 +61,7 @@ namespace YSF_Reflector
             _logger = logger;   
 
             _repeaters = new List<YSFRepeater>();
-            _networkManager = new NetworkManager(_config.NetworkPort, _config.Id, _config.Name, _config.Description, _config.NetworkDebug);
+            _networkManager = new Network(_config.NetworkPort, _config.Id, _config.Name, _config.Description, _config.NetworkDebug, _logger);
             _cancellationTokenSource = new CancellationTokenSource();
         }
 
@@ -92,6 +92,7 @@ namespace YSF_Reflector
         public void Stop()
         {
             _cancellationTokenSource.Cancel();
+            _networkManager.CloseConnection();
         }
 
         /// <summary>

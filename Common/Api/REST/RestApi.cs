@@ -86,7 +86,7 @@ namespace Common.Api.REST
                 }
                 catch (HttpListenerException ex) when (_cts.Token.IsCancellationRequested)
                 {
-                    
+                    _logger.Error(ex.Message);
                 }
                 catch (Exception ex)
                 {

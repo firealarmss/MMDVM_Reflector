@@ -41,7 +41,7 @@ namespace P25_Reflector
         private ILogger _logger;
 
         private List<P25Peer> _peers;
-        private NetworkManager _networkManager;
+        private Network _networkManager;
 
         private CancellationTokenSource _cancellationTokenSource;
 
@@ -72,7 +72,7 @@ namespace P25_Reflector
             _logger.Information($"    Port: {_config.NetworkPort}");
             _logger.Information($"    Debug: {_config.NetworkDebug}");
 
-            _networkManager = new NetworkManager(_config.NetworkPort, _config.NetworkDebug);
+            _networkManager = new Network(_config.NetworkPort, _config.NetworkDebug, _logger);
             if (!_networkManager.OpenConnection())
             {
                 _logger.Error("P25Reflector network open failed");
@@ -91,6 +91,7 @@ namespace P25_Reflector
         public void Stop()
         {
             _cancellationTokenSource.Cancel();
+            _networkManager.CloseConnection();
         }
 
         /// <summary>

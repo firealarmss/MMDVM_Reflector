@@ -1,5 +1,5 @@
 ﻿/*
-* MMDVM_Reflector - M17_Reflector
+* MMDVM_Reflector - P25_Reflector
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -18,27 +18,25 @@
 * 
 */
 
-using Common;
-using Common.Api;
-using Serilog;
 using System.Net;
+using Common;
+using Serilog;
 
-namespace M17_Reflector
+namespace P25_Reflector
 {
     /// <summary>
-    /// M17 Networking class
+    /// P25 Networking class
     /// </summary>
     public class Network : BaseNetwork
     {
         /// <summary>
-        /// Creates an instance of <see cref="Network"/> for M17 communication.
+        /// Creates an instance of <see cref="Network"/> for P25 communication.
         /// </summary>
         /// <param name="port">The port to bind the UDP client to.</param>
         /// <param name="debug">Enable or disable debug mode.</param>
         /// <param name="logger">Logger instance for logging.</param>
         public Network(int port, bool debug, ILogger logger)
-            : base(port, DigitalMode.M17, logger, debug)
-        {
-        }
+            : base(port, DigitalMode.P25, logger, debug)
+        { /* stub */ }
     }
 }

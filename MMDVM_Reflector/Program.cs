@@ -150,7 +150,7 @@ namespace MMDVM_Reflector
             }
             finally
             {
-                Console.WriteLine("Stopping reflectors...");
+                Log.Logger.Information("Stopping reflectors...");
                 if (config.Reflectors.P25.Enabled && p25Reflector != null)
                     p25Reflector.Stop();
 

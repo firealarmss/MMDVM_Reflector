@@ -38,7 +38,7 @@ namespace NXDN_Reflector
         private ILogger _logger;
 
         private List<NXDNRepeater> _repeaters;
-        private NetworkManager _networkManager;
+        private Network _networkManager;
 
         private CancellationTokenSource _cancellationTokenSource;
 
@@ -50,7 +50,7 @@ namespace NXDN_Reflector
             _logger = logger;
 
             _repeaters = new List<NXDNRepeater>();
-            _networkManager = new NetworkManager(_config.NetworkPort, _config.NetworkDebug);
+            _networkManager = new Network(_config.NetworkPort, _config.NetworkDebug, _logger);
             _cancellationTokenSource = new CancellationTokenSource();
         }
 
@@ -74,6 +74,7 @@ namespace NXDN_Reflector
         public void Stop()
         {
             _cancellationTokenSource.Cancel();
+            _networkManager.CloseConnection();
         }
 
         public bool Disconnect(string callsign)

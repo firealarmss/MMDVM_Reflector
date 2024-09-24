@@ -42,6 +42,7 @@ namespace M17_Reflector
             }
             catch (Exception ex)
             {
+                var ex2 = ex; // yeah i did that
                 return false;
             }
         }

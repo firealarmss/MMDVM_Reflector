@@ -1,5 +1,5 @@
 ﻿/*
-* MMDVM_Reflector - Common
+* MMDVM_Reflector - M17Reflector
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,8 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
+using YamlDotNet.Core.Tokens;
 
 namespace M17_Reflector
 {
@@ -37,6 +39,7 @@ namespace M17_Reflector
         private readonly ConcurrentDictionary<string, Peer> _peers = new ConcurrentDictionary<string, Peer>();
         private readonly Network _protocol;
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
+        private CancellationTokenSource _cancellationTokenSource;
 
         private Config _config;
         private CallsignAcl _callsignAcl;
@@ -50,7 +53,9 @@ namespace M17_Reflector
             _reporter = reporter;
             _logger = logger;
 
-            _protocol = new Network(config.NetworkPort);
+            _protocol = new Network(config.NetworkPort, _config.NetworkDebug, _logger);
+
+            _cancellationTokenSource = new CancellationTokenSource();
         }
 
         public void Run()
@@ -60,7 +65,7 @@ namespace M17_Reflector
             _logger.Information($"    Reflector: M17-{_config.Reflector}");
             _logger.Information($"    Debug: {_config.NetworkDebug}");
 
-            if (!_protocol.Initialize())
+            if (!_protocol.OpenConnection())
             {
                 _logger.Error("Failed to initialize protocol.");
                 return;
@@ -69,14 +74,15 @@ namespace M17_Reflector
                 _logger.Information($"M17Reflector version: {version} started.\n");
             }
 
-            Task.Run(() => MainLoop(), _cts.Token);
+            Task.Factory.StartNew(() => MainLoop(_cts.Token), _cancellationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
         public void Stop()
         {
-            _logger.Information("Stopping M17 Reflector...");
+            //_logger.Information("Stopping M17 Reflector...");
+            _cancellationTokenSource.Cancel();
             _cts.Cancel();
-            _protocol.Close();
+            _protocol.CloseConnection();
         }
 
         public bool Disconnect(string callsign)
@@ -87,7 +93,7 @@ namespace M17_Reflector
 
             if (peerToRemove != null)
             {
-                _protocol.SendPacket(CreateNackPacket(), peerToRemove.Address);
+                _protocol.SendData(CreateNackPacket(), peerToRemove.Address);
 
                 if (_peers.TryRemove(peerToRemove.Address.ToString(), out var removedPeer))
                 {
@@ -144,15 +150,17 @@ namespace M17_Reflector
             }
         }
 
-        private async Task MainLoop()
+        private async Task MainLoop(CancellationToken token)
         {
             while (!_cts.Token.IsCancellationRequested)
             {
-                var (packet, ip) = await _protocol.ReceivePacketAsync();
+                var (packet, ip) = _protocol.ReceiveData();
                 if (packet != null)
                 {
                     HandlePacket(packet, ip);
                 }
+
+                await Task.Delay(10, token);
             }
         }
 
@@ -222,7 +230,7 @@ namespace M17_Reflector
                 peer.Module = Encoding.ASCII.GetString(packet, 10, 1);
 
                 _peers.TryAdd(ip.ToString(), peer);
-                _protocol.SendPacket(CreateAckPacket(), ip);
+                _protocol.SendData(CreateAckPacket(), ip);
 
                 _reporter.Send(new Report {Mode = DigitalMode.M17, Type = Common.Api.Type.CONNECTION, Extra = PreparePeersListForReport(_peers) });
                 _logger.Information($"M17: Added peer: {peer.Address}");
@@ -235,7 +243,7 @@ namespace M17_Reflector
                 if (!userAuthorized)
                     _logger.Warning($"M17: NET_NACK address: {ip}, Reason: ACL Rejction");
 
-                _protocol.SendPacket(CreateNackPacket(), ip);
+                _protocol.SendData(CreateNackPacket(), ip);
             }
         }
 
@@ -249,7 +257,7 @@ namespace M17_Reflector
             } else
             {
                 _logger.Warning($"M17: NET_NACK address: {ip}, Reason: Peer not connected");
-                _protocol.SendPacket(CreateNackPacket(), ip);
+                _protocol.SendData(CreateNackPacket(), ip);
             }
         }
 
@@ -260,12 +268,12 @@ namespace M17_Reflector
             {
                 peer.Refresh();
 
-                _protocol.SendPacket(CreatePingPacket(), ip);
+                _protocol.SendData(CreatePingPacket(), ip);
                 //Console.WriteLine($"Peer {peer.Address} PING.");
             } else
             {
                 _logger.Warning($"M17: NET_NACK address: {ip}, Reason: Peer not connected");
-                _protocol.SendPacket(CreateNackPacket(), ip);
+                _protocol.SendData(CreateNackPacket(), ip);
             }
         }
 
@@ -299,14 +307,14 @@ namespace M17_Reflector
                 peer.StartTransmission(streamid);
 
                 if (reflector != _config.Reflector)
-                    _protocol.SendPacket(CreateNackPacket(), ip);
+                    _protocol.SendData(CreateNackPacket(), ip);
 
                 BroadCastPacket(packet, ip, module);
             }
             else
             {
                 _logger.Warning($"M17: NET_NACK address: {ip}, Reason: Peer not connected");
-                _protocol.SendPacket(CreateNackPacket(), ip);
+                _protocol.SendData(CreateNackPacket(), ip);
             }
         }
 
