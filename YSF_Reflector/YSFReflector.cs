@@ -237,35 +237,42 @@ namespace YSF_Reflector
         /// <param name="senderAddress"></param>
         private void HandleYSFData(byte[] buffer, YSFRepeater repeater, IPEndPoint senderAddress)
         {
-            byte[] tag = new byte[YSF_CALLSIGN_LENGTH];
-            byte[] src = new byte[YSF_CALLSIGN_LENGTH];
-            byte[] dst = new byte[YSF_CALLSIGN_LENGTH];
-
-            Buffer.BlockCopy(buffer, 4, tag, 0, YSF_CALLSIGN_LENGTH);
-            Buffer.BlockCopy(buffer, 14, src, 0, YSF_CALLSIGN_LENGTH);
-            Buffer.BlockCopy(buffer, 24, dst, 0, YSF_CALLSIGN_LENGTH);
-
-            string tagCallsign = ParseCallsign(tag);
-            string srcCallsign = ParseCallsign(src);
-            string dstCallsign = ParseCallsign(dst);
-
-            if (!repeater.IsTransmitting)
+            try
             {
-                _logger.Information($"YSF: NET transmssion, srcId: {srcCallsign}, dstId: {dstCallsign}, Callsign: {tagCallsign}");
-                repeater.StartTransmission();
-                _reporter.Send(uint.Parse(srcCallsign), uint.Parse(dstCallsign), tagCallsign, Common.DigitalMode.YSF, Common.Api.Type.CALL_START, string.Empty);
-                _reporter.Send(new Report { Mode = Common.DigitalMode.YSF, Type = Common.Api.Type.CONNECTION, Extra = PreparePeersListForReport(_repeaters), DateTime = DateTime.Now });
-            }
+                byte[] tag = new byte[YSF_CALLSIGN_LENGTH];
+                byte[] src = new byte[YSF_CALLSIGN_LENGTH];
+                byte[] dst = new byte[YSF_CALLSIGN_LENGTH];
 
-            if ((buffer[34] & 0x01) == 0x01)
+                Buffer.BlockCopy(buffer, 4, tag, 0, YSF_CALLSIGN_LENGTH);
+                Buffer.BlockCopy(buffer, 14, src, 0, YSF_CALLSIGN_LENGTH);
+                Buffer.BlockCopy(buffer, 24, dst, 0, YSF_CALLSIGN_LENGTH);
+
+                string tagCallsign = ParseCallsign(tag);
+                string srcCallsign = ParseCallsign(src);
+                string dstCallsign = ParseCallsign(dst);
+
+                if (!repeater.IsTransmitting)
+                {
+                    _logger.Information($"YSF: NET transmssion, srcId: {srcCallsign}, dstId: {dstCallsign}, Callsign: {tagCallsign}");
+                    repeater.StartTransmission();
+                    _reporter.Send(0, 0, tagCallsign, Common.DigitalMode.YSF, Common.Api.Type.CALL_START, string.Empty);
+                    _reporter.Send(new Report { Mode = Common.DigitalMode.YSF, Type = Common.Api.Type.CONNECTION, Extra = PreparePeersListForReport(_repeaters), DateTime = DateTime.Now });
+                }
+
+                if ((buffer[34] & 0x01) == 0x01)
+                {
+                    _logger.Information($"YSF: NET end of transmission, srcId: {srcCallsign}, dstId: {dstCallsign}, Callsign: {tagCallsign}");
+                    repeater.EndTransmission();
+                    _reporter.Send(0, 0, tagCallsign, Common.DigitalMode.YSF, Common.Api.Type.CALL_END, string.Empty);
+                    _reporter.Send(new Report { Mode = Common.DigitalMode.YSF, Type = Common.Api.Type.CONNECTION, Extra = PreparePeersListForReport(_repeaters), DateTime = DateTime.Now });
+                }
+
+                RelayToAllRepeaters(buffer, senderAddress);
+            }
+            catch (Exception ex)
             {
-                _logger.Information($"YSF: NET end of transmission, srcId: {srcCallsign}, dstId: {dstCallsign}, Callsign: {tagCallsign}");
-                repeater.EndTransmission();
-                _reporter.Send(uint.Parse(srcCallsign), uint.Parse(dstCallsign), tagCallsign, Common.DigitalMode.YSF, Common.Api.Type.CALL_END, string.Empty);
-                _reporter.Send(new Report { Mode = Common.DigitalMode.YSF, Type = Common.Api.Type.CONNECTION, Extra = PreparePeersListForReport(_repeaters), DateTime = DateTime.Now });
+                Console.WriteLine(ex.ToString());   
             }
-
-            RelayToAllRepeaters(buffer, senderAddress);
         }
 
         /// <summary>
