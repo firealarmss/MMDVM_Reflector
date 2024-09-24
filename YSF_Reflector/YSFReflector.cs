@@ -24,6 +24,7 @@ using Newtonsoft.Json;
 using Serilog;
 using System.Net;
 using System.Numerics;
+using System.Text;
 
 #nullable disable
 
@@ -60,7 +61,7 @@ namespace YSF_Reflector
             _logger = logger;   
 
             _repeaters = new List<YSFRepeater>();
-            _networkManager = new NetworkManager(_config.NetworkPort, _config.NetworkDebug);
+            _networkManager = new NetworkManager(_config.NetworkPort, _config.Id, _config.Name, _config.Description, _config.NetworkDebug);
             _cancellationTokenSource = new CancellationTokenSource();
         }
 
@@ -215,6 +216,16 @@ namespace YSF_Reflector
             {
                 // "YSFD" data transmission
                 HandleYSFData(buffer, repeater, senderAddress);
+            }
+            else if (buffer.Length >= 4 && System.Text.Encoding.ASCII.GetString(buffer, 0, 4) == "YSFS")
+            {
+                // "YSFS" status. I think this is only for the reflector registry?
+                _networkManager.SendStatus(senderAddress, _repeaters.Count);
+            }
+            else if (buffer.Length >= 4 && System.Text.Encoding.ASCII.GetString(buffer, 0, 4) == "YSFV")
+            {
+                // "YSFV" version. I think this is only for the reflector registry?
+                _networkManager.SendData(Encoding.ASCII.GetBytes($"YSFVMMDVM_Reflector {version}") ,senderAddress);
             }
         }
 

@@ -41,6 +41,21 @@ namespace YSF_Reflector
         public bool Acl { get; set; }
 
         /// <summary>
+        /// Name of the YSF reflector
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Description of the YSF reflector
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <summary>
+        /// ID of the YSF reflector
+        /// </summary>
+        public int Id { get; set; }
+
+        /// <summary>
         /// Port for this mode to bind to
         /// </summary>
         public int NetworkPort { get; set; }

@@ -32,6 +32,9 @@ reflectors:
   ysf:
     enabled: false # Enable or disable YSF.
     acl: false # Access Control enabled on this mode.
+    name: "Ref Name" # Reflector Name
+    description: "Red Desc" # Reflector Description
+    id: 0 # Can leave 0 or whatever or reflector id
     networkPort: 42000 # Port to bind the reflector to.
     networkDebug: false # Debug YSF
 

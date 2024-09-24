@@ -18,8 +18,12 @@
 * 
 */
 
+using Common;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Text;
+using System.Xml.Linq;
 
 #nullable disable
 
@@ -31,7 +35,11 @@ namespace YSF_Reflector
     public class NetworkManager
     {
         private UdpClient _udpClient;
+
         private int _port;
+        private int _id;
+        private string _name;
+        private string _description;
         private bool _debug;
 
         /// <summary>
@@ -39,9 +47,12 @@ namespace YSF_Reflector
         /// </summary>
         /// <param name="port"></param>
         /// <param name="debug"></param>
-        public NetworkManager(int port, bool debug)
+        public NetworkManager(int port, int id, string name, string description, bool debug)
         {
             _port = port;
+            _id = id;
+            _name = name;
+            _description = description;
             _debug = debug;
         }
 
@@ -73,6 +84,7 @@ namespace YSF_Reflector
             byte[] data = _udpClient.Receive(ref remoteEndPoint);
             if (_debug)
             {
+                Console.WriteLine(Utils.HexDump(data));
                 Console.WriteLine($"YSF: Received data from {remoteEndPoint.Address}:{remoteEndPoint.Port}");
             }
             return (data, remoteEndPoint);
@@ -88,6 +100,7 @@ namespace YSF_Reflector
             _udpClient.Send(data, data.Length, destination);
             if (_debug)
             {
+                Console.WriteLine(Utils.HexDump(data));
                 Console.WriteLine($"YSF: Sent data to {destination.Address}:{destination.Port}");
             }
         }
@@ -128,6 +141,69 @@ namespace YSF_Reflector
             catch (Exception ex)
             {
                 Console.WriteLine($"Error sending YSF poll: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Helper to send YSFS response
+        /// </summary>
+        /// <param name="destination"></param>
+        /// <param name="count"></param>
+        public void SendStatus(IPEndPoint destination, int count)
+        {
+            try
+            {
+                SendData(Encoding.ASCII.GetBytes(ComputeStatus(count)), destination);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error sending YSF status: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Compute and format YSFS response
+        /// </summary>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public string ComputeStatus(int count)
+        {
+            uint hash = (uint)_id;
+
+            if (hash == 0U)
+            {
+                for (int i = 0; i < _name.Length; i++)
+                {
+                    uint charValue = (uint)_name[i];
+                    hash = unchecked(hash + charValue);
+                    hash = unchecked(hash + (hash << 10));
+                    hash = unchecked(hash ^ (hash >> 6));
+                }
+
+                hash = unchecked(hash + (hash << 3));
+                hash = unchecked(hash ^ (hash >> 11));
+                hash = unchecked(hash + (hash << 15));
+            }
+
+            string status = $"YSFS{hash % 100000U:D5}{PadOrTruncate(_name, 16)}{PadOrTruncate(_description, 14)}{count:D3}";
+            return status;
+        }
+
+        /// <summary>
+        /// Helper to pad or truncate a string
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        private string PadOrTruncate(string input, int length)
+        {
+            if (input.Length > length)
+            {
+                return input.Substring(0, length);
+            }
+            else
+            {
+                return input.PadRight(length, ' ');
             }
         }
     }
