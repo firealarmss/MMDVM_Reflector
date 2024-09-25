@@ -35,6 +35,7 @@ namespace M17_Reflector
     {
         public static string version = "01.00.00";
         private const string M17CHARACTERS = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-/.";
+        private const int M17_EOT = 0x80;
 
         private readonly ConcurrentDictionary<string, Peer> _peers = new ConcurrentDictionary<string, Peer>();
         private readonly Network _protocol;
@@ -322,12 +323,17 @@ namespace M17_Reflector
 
                 if (!peer.IsTransmitting)
                 {
-                    _logger.Information($"M17: Voice transmission, streamid: {BitConverter.ToString(streamid).Replace("-", string.Empty)} callsign: {srcid.Substring(0, 6)}, destination: {dstid}, from {ip}");
+                    peer.StartTransmission(streamid);
+                    _logger.Information($"M17: Start Voice transmission, streamid: {BitConverter.ToString(streamid).Replace("-", string.Empty)} callsign: {srcid.Substring(0, 6)}, destination: {dstid}, from {ip}");
                     _reporter.Send(0, 0, srcid.Substring(0, 6), DigitalMode.M17, Common.Api.Type.CALL_START, string.Empty);
                     _reporter.Send(new Report { Mode = DigitalMode.M17, Type = Common.Api.Type.CONNECTION, Extra = PreparePeersListForReport(_peers) });
                 }
 
-                peer.StartTransmission(streamid);
+                if (packet[34U] == M17_EOT)
+                {
+                    peer.EndTransmission(streamid);
+                    _logger.Information($"M17: End Voice transmission, streamid: {BitConverter.ToString(streamid).Replace("-", string.Empty)} callsign: {srcid.Substring(0, 6)}, destination: {dstid}, from {ip}");
+                }
 
                 if (reflector != _config.Reflector)
                     _protocol.SendData(CreateNackPacket(), ip);

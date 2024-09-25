@@ -73,15 +73,23 @@ namespace Common
         /// <returns>A tuple containing the received data and the sender's endpoint.</returns>
         public virtual (byte[] data, IPEndPoint sender) ReceiveData()
         {
-            IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
-            byte[] data = _udpClient.Receive(ref remoteEndPoint);
-
-            if (_debug)
+            try
             {
-                _logger.Debug($"{_mode}: Received data from {remoteEndPoint}:\n{Utils.HexDump(data)}");
-            }
+                IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                byte[] data = _udpClient.Receive(ref remoteEndPoint);
 
-            return (data, remoteEndPoint);
+                if (_debug)
+                {
+                    _logger.Debug($"{_mode}: Received data from {remoteEndPoint}:\n{Utils.HexDump(data)}");
+                }
+
+                return (data, remoteEndPoint);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"{_mode}: Error recieving from socket: {ex.Message}");
+                return (null, null);
+            }
         }
 
         /// <summary>

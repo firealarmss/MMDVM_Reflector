@@ -37,7 +37,6 @@ namespace M17_Reflector
         private ILogger _logger { get; set; }
 
         private DateTime _lastActive;
-        private CancellationTokenSource _transmissionCts;
 
         public Peer(IPEndPoint address, ILogger logger)
         {
@@ -45,7 +44,6 @@ namespace M17_Reflector
             _logger = logger;
 
             _lastActive = DateTime.Now;
-            _transmissionCts = new CancellationTokenSource();
             IsTransmitting = false;
         }
 
@@ -58,16 +56,14 @@ namespace M17_Reflector
 
         public void StartTransmission(byte[] streamId)
         {
-            if (IsTransmitting && StreamId != null && AreStreamIdsEqual(StreamId, streamId))
-            {
-                RefreshTransmissionTimeout();
-                return;
-            }
-
             IsTransmitting = true;
             StreamId = streamId;
+        }
 
-            RefreshTransmissionTimeout();
+        public void EndTransmission(byte[] streamId)
+        {
+            IsTransmitting = false;
+            StreamId = []; // Is this correct?
         }
 
         private void StopTransmission()
@@ -79,22 +75,6 @@ namespace M17_Reflector
 
             IsTransmitting = false;
             StreamId = null;
-        }
-
-        private void RefreshTransmissionTimeout()
-        {
-            _transmissionCts.Cancel();
-
-            _transmissionCts = new CancellationTokenSource();
-            var token = _transmissionCts.Token;
-
-            Task.Delay(500, token).ContinueWith(t =>
-            {
-                if (!t.IsCanceled)
-                {
-                    StopTransmission();
-                }
-            }, TaskScheduler.Default);
         }
 
         private bool AreStreamIdsEqual(byte[] id1, byte[] id2)
