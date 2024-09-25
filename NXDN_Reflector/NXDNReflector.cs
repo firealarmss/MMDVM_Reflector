@@ -28,6 +28,9 @@ using System.Net;
 
 namespace NXDN_Reflector
 {
+    /// <summary>
+    /// NXDN Reflector class
+    /// </summary>
     public class NXDNReflector
     {
         public static string version = "01.00.00";
@@ -42,6 +45,13 @@ namespace NXDN_Reflector
 
         private CancellationTokenSource _cancellationTokenSource;
 
+        /// <summary>
+        /// Creates an instance of <see cref="NXDNReflector"/>
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="callsignAcl"></param>
+        /// <param name="reporter"></param>
+        /// <param name="logger"></param>
         public NXDNReflector(Config config, CallsignAcl callsignAcl, Reporter reporter, ILogger logger)
         {
             _config = config;
@@ -54,6 +64,9 @@ namespace NXDN_Reflector
             _cancellationTokenSource = new CancellationTokenSource();
         }
 
+        /// <summary>
+        /// Fires up the reflector
+        /// </summary>
         public void Run()
         {
             _logger.Information("Starting NXDNReflector");
@@ -71,6 +84,9 @@ namespace NXDN_Reflector
             Task.Factory.StartNew(() => ReceiveLoop(_cancellationTokenSource.Token), _cancellationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
+        /// <summary>
+        /// Gracefully stop the reflector instance
+        /// </summary>
         public void Stop()
         {
             _cancellationTokenSource.Cancel();
@@ -100,6 +116,11 @@ namespace NXDN_Reflector
             };
         }
 
+        /// <summary>
+        /// Helper to disconnect a current <see cref="P25Peer"/> based off its callsign
+        /// </summary>
+        /// <param name="callsign"></param>
+        /// <returns></returns>
         public bool Disconnect(string callsign)
         {
             _logger.Information($"NXDN: Attempting to disconnect callsign {callsign}");
@@ -129,12 +150,22 @@ namespace NXDN_Reflector
             }
         }
 
+        /// <summary>
+        /// Helper to block the specified callsign
+        /// </summary>
+        /// <param name="callsign"></param>
+        /// <returns></returns>
         public bool Block(string callsign)
         {
             Console.WriteLine($"NXDN: Block {callsign}");
             return false;
         }
 
+        /// <summary>
+        /// Helper to un block the specified callsign
+        /// </summary>
+        /// <param name="callsign"></param>
+        /// <returns></returns>
         public bool UnBlock(string callsign)
         {
             var entry = _acl.Entries.Find(e => e.Callsign == callsign);
@@ -163,6 +194,11 @@ namespace NXDN_Reflector
             }
         }
 
+        /// <summary>
+        /// Main loop to receive UDP data
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         private async Task ReceiveLoop(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
@@ -177,6 +213,11 @@ namespace NXDN_Reflector
             }
         }
 
+        /// <summary>
+        /// Callback to handle all incoming UDP data
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="senderAddress"></param>
         private void HandleIncomingData(byte[] buffer, IPEndPoint senderAddress)
         {
             NXDNRepeater repeater = FindRepeater(senderAddress);
@@ -223,6 +264,12 @@ namespace NXDN_Reflector
             }
         }
 
+        /// <summary>
+        /// Helper to handle a transmission
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="repeater"></param>
+        /// <param name="senderAddress"></param>
         private void HandleDataTransmission(byte[] buffer, NXDNRepeater repeater, IPEndPoint senderAddress)
         {
             ushort srcId = (ushort)((buffer[5] << 8) | buffer[6]);
@@ -251,6 +298,11 @@ namespace NXDN_Reflector
             }
         }
 
+        /// <summary>
+        /// Helper to make a JSON list of current <see cref="P25Peer"/>
+        /// </summary>
+        /// <param name="peers"></param>
+        /// <returns></returns>
         private string PreparePeersListForReport(List<NXDNRepeater> repeaters)
         {
             var peersInfo = repeaters.Select(repeater => new
@@ -263,6 +315,11 @@ namespace NXDN_Reflector
             return JsonConvert.SerializeObject(peersInfo, Formatting.Indented);
         }
 
+        /// <summary>
+        /// Broadcast a message to all repeaters except ourself
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="senderAddress"></param>
         private void RelayToAllRepeaters(byte[] buffer, IPEndPoint senderAddress)
         {
             foreach (var repeater in _repeaters)
@@ -274,6 +331,11 @@ namespace NXDN_Reflector
             }
         }
 
+        /// <summary>
+        /// Helper to find a <see cref="P25Peer"/> based on its <see cref="IPEndPoint"/>
+        /// </summary>
+        /// <param name="address"></param>
+        /// <returns></returns>
         private NXDNRepeater FindRepeater(IPEndPoint address)
         {
             return _repeaters.Find(r => r.IsSameAddress(address));

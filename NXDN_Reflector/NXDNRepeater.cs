@@ -22,12 +22,20 @@ using System.Net;
 
 namespace NXDN_Reflector
 {
+    /// <summary>
+    /// NXDN Repeater class
+    /// </summary>
     public class NXDNRepeater
     {
         public IPEndPoint Address { get; }
         public string CallSign { get; }
         public bool IsTransmitting { get; private set; }
 
+        /// <summary>
+        /// Creates an instance of <see cref="NXDNRepeater"/>
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="buffer"></param>
         public NXDNRepeater(IPEndPoint address, byte[] buffer)
         {
             Address = address;
@@ -35,16 +43,27 @@ namespace NXDN_Reflector
             IsTransmitting = false;
         }
 
+        /// <summary>
+        /// Helper to set tranmission state to true
+        /// </summary>
         public void StartTransmission()
         {
             IsTransmitting = true;
         }
 
+        /// <summary>
+        /// Helper to set tranmission state to false
+        /// </summary>
         public void EndTransmission()
         {
             IsTransmitting = false;
         }
 
+        /// <summary>
+        /// Helper to see if two <see cref="IPEndPoint"/> are equal
+        /// </summary>
+        /// <param name="address"></param>
+        /// <returns></returns>
         public bool IsSameAddress(IPEndPoint address)
         {
             return Address.Equals(address);

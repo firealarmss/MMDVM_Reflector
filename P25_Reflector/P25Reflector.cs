@@ -24,8 +24,6 @@ using Newtonsoft.Json;
 using Serilog;
 using System.Net;
 
-#nullable disable
-
 namespace P25_Reflector
 {
     /// <summary>
