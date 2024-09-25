@@ -1,7 +1,4 @@
-﻿using Common.Api.REST.Routes;
-using System;
-using System.Net;
-/*
+﻿/*
 * MMDVM_Reflector - Common
 *
 * This program is free software: you can redistribute it and/or modify
@@ -21,7 +18,9 @@ using System.Net;
 * 
 */
 
+using System.Net;
 using System.Text.Json;
+using Common.Api.REST.Routes;
 
 namespace Common.Api.REST
 {
