@@ -85,6 +85,29 @@ namespace M17_Reflector
             _protocol.CloseConnection();
         }
 
+        /// <summary>
+        /// Helper to get status of reflector
+        /// </summary>
+        /// <returns></returns>
+        public ReflectorStatus Status()
+        {
+            string status = "Error";
+
+            if (!_cancellationTokenSource.Token.IsCancellationRequested)
+                status = "Running";
+            else
+                status = "Stopped";
+
+            return new ReflectorStatus
+            {
+                Mode = "M17",
+                Status = status,
+                Port = _config.NetworkPort,
+                ConnectedPeers = _peers.Count,
+                Acl = null
+            };
+        }
+
         public bool Disconnect(string callsign)
         {
             _logger.Information($"M17: Attempting to disconnect callsign {callsign}");

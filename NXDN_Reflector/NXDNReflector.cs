@@ -77,6 +77,29 @@ namespace NXDN_Reflector
             _networkManager.CloseConnection();
         }
 
+        /// <summary>
+        /// Helper to get status of reflector
+        /// </summary>
+        /// <returns></returns>
+        public ReflectorStatus Status()
+        {
+            string status = "Error";
+
+            if (!_cancellationTokenSource.Token.IsCancellationRequested)
+                status = "Running";
+            else
+                status = "Stopped";
+
+            return new ReflectorStatus
+            {
+                Mode = "NXDN",
+                Status = status,
+                Port = _config.NetworkPort,
+                ConnectedPeers = _repeaters.Count,
+                Acl = null
+            };
+        }
+
         public bool Disconnect(string callsign)
         {
             _logger.Information($"NXDN: Attempting to disconnect callsign {callsign}");

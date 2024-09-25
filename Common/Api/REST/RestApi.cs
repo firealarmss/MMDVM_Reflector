@@ -51,7 +51,8 @@ namespace Common.Api.REST
             _routes = new List<IRouteHandler>
             {
                 new AuthRoute(_hashedPassword, _validTokens),
-                new ReflectorCommandRoute(_reflectorContext)
+                new ReflectorCommandRoute(_reflectorContext),
+                new ReflectorStatusRoute(_reflectorContext)
             };
         }
 

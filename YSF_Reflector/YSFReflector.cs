@@ -96,6 +96,29 @@ namespace YSF_Reflector
         }
 
         /// <summary>
+        /// Helper to get status of reflector
+        /// </summary>
+        /// <returns></returns>
+        public ReflectorStatus Status()
+        {
+            string status = "Error";
+
+            if (!_cancellationTokenSource.Token.IsCancellationRequested)
+                status = "Running";
+            else
+                status = "Stopped";
+
+            return new ReflectorStatus
+            {
+                Mode = "YSF",
+                Status = status,
+                Port = _config.NetworkPort,
+                ConnectedPeers = _repeaters.Count,
+                Acl = null
+            };
+        }
+
+        /// <summary>
         /// Helper to disconnect a current <see cref="YSFRepeater"/> based off its callsign
         /// </summary>
         /// <param name="callsign"></param>

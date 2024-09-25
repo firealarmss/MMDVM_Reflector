@@ -95,6 +95,29 @@ namespace P25_Reflector
         }
 
         /// <summary>
+        /// Helper to get status of reflector
+        /// </summary>
+        /// <returns></returns>
+        public ReflectorStatus Status()
+        {
+            string status = "Error";
+
+            if (!_cancellationTokenSource.Token.IsCancellationRequested)
+                status = "Running";
+            else
+                status = "Stopped";
+
+            return new ReflectorStatus
+            {
+                Mode = "P25",
+                Status = status,
+                Port = _config.NetworkPort,
+                ConnectedPeers = _peers.Count,
+                Acl = _acl.Entries
+            };
+        }
+
+        /// <summary>
         /// Helper to disconnect a current <see cref="P25Peer"/> based off its callsign
         /// </summary>
         /// <param name="callsign"></param>

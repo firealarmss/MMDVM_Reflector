@@ -1,8 +1,29 @@
-﻿using Common.Api;
+﻿/*
+* MMDVM_Reflector - MMDVM_Reflector
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+* 
+* Copyright (C) 2024 Caleb, KO4UYJ
+* 
+*/
+
+using Common.Api;
 using P25_Reflector;
 using YSF_Reflector;
 using NXDN_Reflector;
 using M17_Reflector;
+using Common;
 
 namespace MMDVM_Reflector
 {
@@ -69,6 +90,23 @@ namespace MMDVM_Reflector
                     return M17Reflector?.UnBlock(callsign) ?? false;
                 default:
                     return false;
+            }
+        }
+
+        public ReflectorStatus GetReflectorStatus(string reflectorType)
+        {
+            switch (reflectorType.ToLower())
+            {
+                case "p25":
+                    return P25Reflector?.Status();
+                case "ysf":
+                    return YSFReflector?.Status();
+                case "nxdn":
+                    return NXDNReflector?.Status();
+                case "m17":
+                    return M17Reflector?.Status();
+                default:
+                    return new ReflectorStatus { Mode = "Unkown", Status = "Error"};
             }
         }
     }
