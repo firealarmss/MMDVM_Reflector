@@ -166,7 +166,7 @@ namespace MMDVM_Reflector
                 if (config.Rest.Enabled && restApi != null)
                     restApi.Stop();
 
-                Console.WriteLine("Reflectors stopped.");
+                Log.Logger.Information("Reflectors stopped.");
             }
         }
     }
