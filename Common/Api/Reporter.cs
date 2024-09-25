@@ -24,6 +24,9 @@ using System.Text;
 
 namespace Common.Api
 {
+    /// <summary>
+    /// Reflector Reporter API
+    /// </summary>
     public class Reporter
     {
         private string _ip;
@@ -33,8 +36,14 @@ namespace Common.Api
 
         private readonly HttpClient _httpClient;
 
+        /// <summary>
+        /// Creates an instance of <see cref="Reporter"/>
+        /// </summary>
         public Reporter() { /* sub */ }
 
+        /// <summary>
+        /// Creates an instance of <see cref="Reporter"/>
+        /// </summary>
         public Reporter(string ip, int port, bool enabled, ILogger logger)
         {
             _ip = ip;
@@ -53,6 +62,11 @@ namespace Common.Api
             }
         }
 
+        /// <summary>
+        /// Helper to send a report object async
+        /// </summary>
+        /// <param name="reportData"></param>
+        /// <returns></returns>
         public async Task SendReportAsync(object reportData)
         {
             if (!_enabled)
@@ -81,6 +95,10 @@ namespace Common.Api
             }
         }
 
+        /// <summary>
+        /// Helper to send a <see cref="Report"/>
+        /// </summary>
+        /// <param name="report"></param>
         public void Send(Report report)
         {
             if (!_enabled) return;
@@ -88,6 +106,15 @@ namespace Common.Api
             Task.Run(() => SendReportAsync(report));
         }
 
+        /// <summary>
+        /// Helper to send a <see cref="Report"/>
+        /// </summary>
+        /// <param name="srcId"></param>
+        /// <param name="dstId"></param>
+        /// <param name="peer"></param>
+        /// <param name="mode"></param>
+        /// <param name="type"></param>
+        /// <param name="extra"></param>
         public void Send(uint srcId, uint dstId, string peer, DigitalMode mode, Type type, string extra)
         {
             if (!_enabled) return;

@@ -24,6 +24,9 @@ using Serilog;
 
 namespace Common
 {
+    /// <summary>
+    /// Base networking for Reflectors
+    /// </summary>
     public class BaseNetwork
     {
         protected UdpClient _udpClient;

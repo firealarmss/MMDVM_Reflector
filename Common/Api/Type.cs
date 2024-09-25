@@ -20,6 +20,9 @@
 
 namespace Common.Api
 {
+    /// <summary>
+    /// Reporter API report type
+    /// </summary>
     public enum Type
     {
         CALL_START = 0x00,

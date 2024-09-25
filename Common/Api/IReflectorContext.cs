@@ -20,14 +20,40 @@
 
 namespace Common.Api
 {
+    /// <summary>
+    /// Reflector context interface
+    /// </summary>
     public interface IReflectorContext
     {
+        /// <summary>
+        /// Disconnect from reflector by callsign
+        /// </summary>
+        /// <param name="reflectorType"></param>
+        /// <param name="callsign"></param>
+        /// <returns></returns>
         bool DisconnectCallsign(string reflectorType, string callsign);
 
+        /// <summary>
+        /// Block from reflector by callsign
+        /// </summary>
+        /// <param name="reflectorType"></param>
+        /// <param name="callsign"></param>
+        /// <returns></returns>
         bool BlockCallsign(string reflectorType, string callsign);
 
+        /// <summary>
+        /// Unblock from reflector by callsign
+        /// </summary>
+        /// <param name="reflectorType"></param>
+        /// <param name="callsign"></param>
+        /// <returns></returns>
         bool UnBlockCallsign(string reflectorType, string callsign);
 
+        /// <summary>
+        /// Get reflectors status
+        /// </summary>
+        /// <param name="reflectorType"></param>
+        /// <returns></returns>
         ReflectorStatus GetReflectorStatus (string reflectorType);
     }
 }

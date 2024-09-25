@@ -20,16 +20,49 @@
 
 namespace Common.Api
 {
+    /// <summary>
+    /// Report class
+    /// </summary>
     public class Report
     {
+        /// <summary>
+        /// Creates an instance of <see cref="Report"/>
+        /// </summary>
         public Report() { /* stub */ }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public uint SrcId { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public uint DstId { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public string Peer { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public string Extra {  get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public DigitalMode Mode { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public Type Type { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public DateTime DateTime { get; set; }
     }
 }

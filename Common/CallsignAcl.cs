@@ -6,17 +6,27 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace Common
 {
+    /// <summary>
+    /// Callsign access control list
+    /// </summary>
     public class CallsignAcl
     {
         public List<CallsignEntry> Entries { get; set; } = new List<CallsignEntry>();
 
         public string AclPath { get; set; }
 
+        /// <summary>
+        /// Creates an instance of <see cref="CallsignAcl"/>
+        /// </summary>
+        /// <param name="configPath"></param>
         public CallsignAcl(string configPath)
         {
             AclPath = configPath;
         }
 
+        /// <summary>
+        /// Loads ACL from YAML
+        /// </summary>
         public void Load()
         {
             Console.WriteLine($"Loading ACL from: {AclPath}");
@@ -65,7 +75,11 @@ namespace Common
             }
         }
 
-
+        /// <summary>
+        /// Checks if a callsign is authorized
+        /// </summary>
+        /// <param name="callsign"></param>
+        /// <returns></returns>
         public bool CheckCallsignAcl(string callsign)
         {
             try
@@ -80,6 +94,11 @@ namespace Common
             }
         }
 
+        /// <summary>
+        /// Checks if a radio id is authorized
+        /// </summary>
+        /// <param name="callsign"></param>
+        /// <returns></returns>
         public bool CheckCallsignAcl(uint rid)
         {
             try
@@ -94,6 +113,9 @@ namespace Common
             }
         }
 
+        /// <summary>
+        /// Saves ACL to YAML
+        /// </summary>
         public void Save()
         {
             try
@@ -115,6 +137,9 @@ namespace Common
 
     }
 
+    /// <summary>
+    /// Callsign ACL entry
+    /// </summary>
     public class CallsignEntry
     {
         public bool Allowed { get; set; }

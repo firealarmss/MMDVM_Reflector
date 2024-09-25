@@ -5,6 +5,9 @@
 
 namespace Common
 {
+    /// <summary>
+    /// Helper functions
+    /// </summary>
     public static class Utils
     {
         /// <summary>

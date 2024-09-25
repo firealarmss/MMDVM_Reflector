@@ -20,6 +20,9 @@
 
 namespace Common
 {
+    /// <summary>
+    /// Supported digital modes
+    /// </summary>
     public enum DigitalMode
     {
         NXDN = 0x00,
