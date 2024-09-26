@@ -26,8 +26,6 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
-using YamlDotNet.Core.Tokens;
 
 namespace M17_Reflector
 {
@@ -35,6 +33,7 @@ namespace M17_Reflector
     {
         public static string version = "01.00.00";
         private const string M17CHARACTERS = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-/.";
+
         private const int M17_EOT = 0x80;
 
         private readonly ConcurrentDictionary<string, Peer> _peers = new ConcurrentDictionary<string, Peer>();

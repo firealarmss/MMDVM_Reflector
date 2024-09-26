@@ -87,9 +87,6 @@ namespace MMDVM_Reflector
                 "\n             This software is intended for ham radio use only" +
                 "\n             Copyright 2024 Caleb, KO4UYJ");
 
-            if (config.Reporter != null)
-                reporter = new Reporter(config.Reporter.Ip, config.Reporter.Port, config.Reporter.Enabled, Log.Logger);
-
             if (config.Reflectors != null)
             {
                 if (config.Reflectors.P25.Enabled)
@@ -123,6 +120,9 @@ namespace MMDVM_Reflector
 
                     restApi.Start();
                 }
+
+                if (config.Reporter != null)
+                    reporter = new Reporter(config.Reporter.Ip, config.Reporter.Port, config.Reporter.Enabled, Log.Logger);
             }
 
             Console.CancelKeyPress += (sender, e) =>
