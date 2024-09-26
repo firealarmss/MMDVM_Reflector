@@ -44,70 +44,50 @@ namespace MMDVM_Reflector
 
         public bool DisconnectCallsign(string reflectorType, string callsign)
         {
-            switch (reflectorType.ToLower())
+            return reflectorType.ToLower() switch
             {
-                case "p25":
-                    return P25Reflector?.Disconnect(callsign) ?? false;
-                case "ysf":
-                    return YSFReflector?.Disconnect(callsign) ?? false;
-                case "nxdn":
-                    return NXDNReflector?.Disconnect(callsign) ?? false;
-                case "m17":
-                    return M17Reflector?.Disconnect(callsign) ?? false;
-                default:
-                    return false;
-            }
+                "p25" => P25Reflector?.Disconnect(callsign) ?? false,
+                "ysf" => YSFReflector?.Disconnect(callsign) ?? false,
+                "nxdn" => NXDNReflector?.Disconnect(callsign) ?? false,
+                "m17" => M17Reflector?.Disconnect(callsign) ?? false,
+                _ => false,
+            };
         }
 
         public bool BlockCallsign(string reflectorType, string callsign)
         {
-            switch (reflectorType.ToLower())
+            return reflectorType.ToLower() switch
             {
-                case "p25":
-                    return P25Reflector?.Block(callsign) ?? false;
-                case "ysf":
-                    return YSFReflector?.Block(callsign) ?? false;
-                case "nxdn":
-                    return NXDNReflector?.Block(callsign) ?? false;
-                case "m17":
-                    return M17Reflector?.Block(callsign) ?? false;
-                default:
-                    return false;
-            }
+                "p25" => P25Reflector?.Block(callsign) ?? false,
+                "ysf" => YSFReflector?.Block(callsign) ?? false,
+                "nxdn" => NXDNReflector?.Block(callsign) ?? false,
+                "m17" => M17Reflector?.Block(callsign) ?? false,
+                _ => false,
+            };
         }
 
         public bool UnBlockCallsign(string reflectorType, string callsign)
         {
-            switch (reflectorType.ToLower())
+            return reflectorType.ToLower() switch
             {
-                case "p25":
-                    return P25Reflector?.UnBlock(callsign) ?? false;
-                case "ysf":
-                    return YSFReflector?.UnBlock(callsign) ?? false;
-                case "nxdn":
-                    return NXDNReflector?.UnBlock(callsign) ?? false;
-                case "m17":
-                    return M17Reflector?.UnBlock(callsign) ?? false;
-                default:
-                    return false;
-            }
+                "p25" => P25Reflector?.UnBlock(callsign) ?? false,
+                "ysf" => YSFReflector?.UnBlock(callsign) ?? false,
+                "nxdn" => NXDNReflector?.UnBlock(callsign) ?? false,
+                "m17" => M17Reflector?.UnBlock(callsign) ?? false,
+                _ => false,
+            };
         }
 
         public ReflectorStatus GetReflectorStatus(string reflectorType)
         {
-            switch (reflectorType.ToLower())
+            return reflectorType.ToLower() switch
             {
-                case "p25":
-                    return P25Reflector?.Status();
-                case "ysf":
-                    return YSFReflector?.Status();
-                case "nxdn":
-                    return NXDNReflector?.Status();
-                case "m17":
-                    return M17Reflector?.Status();
-                default:
-                    return new ReflectorStatus { Mode = "Unkown", Status = "Error"};
-            }
+                "p25" => P25Reflector?.Status(),
+                "ysf" => YSFReflector?.Status(),
+                "nxdn" => NXDNReflector?.Status(),
+                "m17" => M17Reflector?.Status(),
+                _ => new ReflectorStatus { Mode = "Unknown", Status = "Error" },
+            };
         }
     }
 }

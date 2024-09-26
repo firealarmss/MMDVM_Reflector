@@ -33,7 +33,7 @@ namespace Common.Api.REST
             _reflectorContext = reflectorContext;
         }
 
-        public bool RequiresAuth => true;
+        public bool RequiresAuth => false;
         public string Path => "/reflector/";
 
         public void Handle(HttpListenerContext context, string token)
