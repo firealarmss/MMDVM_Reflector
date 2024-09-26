@@ -81,7 +81,7 @@ namespace Common.Api
                 if (response.IsSuccessStatusCode)
                 {
 #if DEBUG
-                    //Console.WriteLine("REPORTER: Report sent");
+                    Console.WriteLine("REPORTER: Report sent");
 #endif
                 }
                 else

@@ -89,6 +89,9 @@ namespace MMDVM_Reflector
 
             if (config.Reflectors != null)
             {
+                if (config.Reporter != null)
+                    reporter = new Reporter(config.Reporter.Ip, config.Reporter.Port, config.Reporter.Enabled, Log.Logger);
+
                 if (config.Reflectors.P25.Enabled)
                 {
                     p25Reflector = new P25Reflector(config.Reflectors.P25, callsignAcl, reporter, Log.Logger);
@@ -120,9 +123,6 @@ namespace MMDVM_Reflector
 
                     restApi.Start();
                 }
-
-                if (config.Reporter != null)
-                    reporter = new Reporter(config.Reporter.Ip, config.Reporter.Port, config.Reporter.Enabled, Log.Logger);
             }
 
             Console.CancelKeyPress += (sender, e) =>
