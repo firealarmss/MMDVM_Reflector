@@ -332,6 +332,8 @@ namespace M17_Reflector
                 {
                     peer.EndTransmission(streamid);
                     _logger.Information($"M17: End Voice transmission, streamid: {BitConverter.ToString(streamid).Replace("-", string.Empty)} callsign: {srcid.Substring(0, 6)}, destination: {dstid}, from {ip}");
+                    _reporter.Send(0, 0, srcid.Substring(0, 6), DigitalMode.M17, Common.Api.Type.CALL_END, string.Empty);
+                    _reporter.Send(new Report { Mode = DigitalMode.M17, Type = Common.Api.Type.CONNECTION, Extra = PreparePeersListForReport(_peers) });
                 }
 
                 if (reflector != _config.Reflector)
