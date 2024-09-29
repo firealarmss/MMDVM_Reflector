@@ -320,6 +320,12 @@ namespace M17_Reflector
                 string reflector = dstid.Substring(4, 3);
                 string module = dstid.Substring(8, 1);
 
+                if (reflector != _config.Reflector)
+                {
+                    _protocol.SendData(CreateNackPacket(), ip);
+                    _logger.Information($"M17: NET_NACK, address: {ip}, Reason: Peer not on our reflector?");
+                }
+
                 if (!peer.IsTransmitting)
                 {
                     peer.StartTransmission(streamid);
@@ -335,9 +341,6 @@ namespace M17_Reflector
                     _reporter.Send(0, 0, srcid.Substring(0, 6), DigitalMode.M17, Common.Api.Type.CALL_END, string.Empty);
                     _reporter.Send(new Report { Mode = DigitalMode.M17, Type = Common.Api.Type.CONNECTION, Extra = PreparePeersListForReport(_peers) });
                 }
-
-                if (reflector != _config.Reflector)
-                    _protocol.SendData(CreateNackPacket(), ip);
 
                 BroadCastPacket(packet, ip, module);
             }
