@@ -258,8 +258,6 @@ namespace YSF_Reflector
                 // "YSFV" version. I think this is only for the reflector registry?
                 _networkManager.SendData(Encoding.ASCII.GetBytes($"YSFVMMDVM_Reflector {version}") ,senderAddress);
             }
-
-            throw new Exception("test");
         }
 
         /// <summary>
