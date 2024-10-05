@@ -175,15 +175,22 @@ namespace M17_Reflector
 
         private async Task MainLoop(CancellationToken token)
         {
-            while (!_cts.Token.IsCancellationRequested)
+            try
             {
-                var (packet, ip) = _protocol.ReceiveData();
-                if (packet != null)
+                while (!_cts.Token.IsCancellationRequested)
                 {
-                    HandlePacket(packet, ip);
-                }
+                    var (packet, ip) = _protocol.ReceiveData();
+                    if (packet != null)
+                    {
+                        HandlePacket(packet, ip);
+                    }
 
-                await Task.Delay(10, token);
+                    await Task.Delay(10, token);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "M17 Reflector died!! error in main loop");
             }
         }
 

@@ -225,15 +225,22 @@ namespace P25_Reflector
         /// <returns></returns>
         private async Task ReceiveLoop(CancellationToken token)
         {
-            while (!token.IsCancellationRequested)
+            try
             {
-                var (buffer, senderAddress) = _networkManager.ReceiveData();
-                if (buffer != null)
+                while (!token.IsCancellationRequested)
                 {
-                    HandleIncomingData(buffer, senderAddress);
-                }
+                    var (buffer, senderAddress) = _networkManager.ReceiveData();
+                    if (buffer != null)
+                    {
+                        HandleIncomingData(buffer, senderAddress);
+                    }
 
-                await Task.Delay(10, token);
+                    await Task.Delay(10, token);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "P25 Reflector died!! error in recieve loop");
             }
         }
 

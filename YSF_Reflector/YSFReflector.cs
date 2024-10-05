@@ -181,15 +181,22 @@ namespace YSF_Reflector
         /// <returns></returns>
         private async Task ReceiveLoop(CancellationToken token)
         {
-            while (!token.IsCancellationRequested)
+            try
             {
-                var (buffer, senderAddress) = _networkManager.ReceiveData();
-                if (buffer != null)
+                while (!token.IsCancellationRequested)
                 {
-                    HandleIncomingData(buffer, senderAddress);
-                }
+                    var (buffer, senderAddress) = _networkManager.ReceiveData();
+                    if (buffer != null)
+                    {
+                        HandleIncomingData(buffer, senderAddress);
+                    }
 
-                await Task.Delay(10, token);
+                    await Task.Delay(10, token);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "YSF Reflector died!! error in recieve loop");
             }
         }
 
@@ -251,6 +258,8 @@ namespace YSF_Reflector
                 // "YSFV" version. I think this is only for the reflector registry?
                 _networkManager.SendData(Encoding.ASCII.GetBytes($"YSFVMMDVM_Reflector {version}") ,senderAddress);
             }
+
+            throw new Exception("test");
         }
 
         /// <summary>
