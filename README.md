@@ -11,7 +11,7 @@ The script downloads dotnet for compiling, compiles the app, and creates a servi
  - `sudo git clone https://github.com/firealarmss/MMDVM_Reflector`
  - `cd MMDVM_Reflector/debian`
  - `sudo chmod +x install.sh`
- - `sudo ./installer.sh`
+ - `sudo ./install.sh`
 
 ## Linux Manual Compliling:
 
