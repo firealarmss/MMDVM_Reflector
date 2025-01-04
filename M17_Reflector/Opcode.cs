@@ -14,7 +14,7 @@
 * You should have received a copy of the GNU General Public License
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 * 
-* Copyright (C) 2024 Caleb, KO4UYJ
+* Copyright (C) 2024 Caleb, K4PHP
 * 
 */
 
