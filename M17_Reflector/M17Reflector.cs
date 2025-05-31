@@ -196,6 +196,12 @@ namespace M17_Reflector
 
         private void HandlePacket(byte[] packet, IPEndPoint ip)
         {
+            if (packet.Length <= 4)
+            {
+                _logger.Warning("Invalid M17 header received; packet < 4");
+                return;
+            }
+
             byte[] header = new byte[4];
 
             Array.Copy(packet, header, 4);
@@ -219,13 +225,17 @@ namespace M17_Reflector
                 case Opcode.NET_VOICE:
                     HandleVoiceData(packet, ip);
                     break;
+                case Opcode.NET_LISTEN:
+                    HandleConnect(packet, ip, true);
+                    break;
                 default:
-                    _logger.Warning("Unknown packet type received");
+                    _logger.Warning("Unknown packet type received: 0x" + opcode.ToString("X2"));
+                    Console.WriteLine(Utils.HexDump(packet));
                     break;
             }
         }
 
-        private void HandleConnect(byte[] packet, IPEndPoint ip)
+        private void HandleConnect(byte[] packet, IPEndPoint ip, bool isListenOnly = false)
         {
             bool moduleAuthorized = true;
             bool userAuthorized = true;
@@ -237,17 +247,22 @@ namespace M17_Reflector
             Callsign srcCs = new Callsign(srcCallsign);
             string srcId = srcCs.GetCS();
 
+            string pcktStr = "NET_CONN";
+
+            if (isListenOnly)
+                pcktStr = "NET_LISTEN";
+
             if (packet.Length >= 16)
             {
                 Array.Copy(packet, 10, dstCallsign, 0, 6);
                 Callsign dstCs = new Callsign(dstCallsign);
                 string dstId = dstCs.GetCS();
 
-                _logger.Information($"M17: NET_CONN source: {srcId.Substring(0, 6)}, destination: {dstId}, module: {Encoding.ASCII.GetString(packet, 16, 1)}, IP: {ip}");
+                _logger.Information($"M17: {pcktStr} source: {srcId.Substring(0, 6)}, destination: {dstId}, module: {Encoding.ASCII.GetString(packet, 16, 1)}, IP: {ip}");
             }
             else
             {
-                _logger.Information($"M17: NET_CONN source: {srcId.Substring(0, 6)}, module: {Encoding.ASCII.GetString(packet, 10, 1)}, IP: {ip}");
+                _logger.Information($"M17: {pcktStr} source: {srcId.Substring(0, 6)}, module: {Encoding.ASCII.GetString(packet, 10, 1)}, IP: {ip}");
             }
 
             moduleAuthorized = _config.CheckModule(Encoding.ASCII.GetString(packet, 10, 1));
